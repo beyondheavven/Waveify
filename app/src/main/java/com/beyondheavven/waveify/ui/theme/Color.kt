@@ -1,6 +1,7 @@
 package com.beyondheavven.waveify.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import java.net.CookieStore
 
 // Accent Colors (Red)
 val WaveifyRed = Color(0xFFFF2A54)
@@ -9,7 +10,7 @@ val WaveifyRedLight = Color(0xFFFF5C7D)
 
 // Dark Theme Background & Surfaces
 val DarkBackground = Color(0xFF0D0D11)
-val DarkSurface = Color(0xFF15151B)
+val DarkSurface = Color(0xFF121214)
 
 val DarkSurfaceElevated = Color(0xFF1E1E26)
 val DarkSurfaceVariant = Color(0xFF282833)
