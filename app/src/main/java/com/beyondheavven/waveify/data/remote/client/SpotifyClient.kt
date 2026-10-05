@@ -10,7 +10,7 @@ object SpotifyClient {
 
     private const val BASE_URL = ""
 
-    var accessToken: String? = null
+    var accessToken: String? = "1POdFZRZbvb...qqillRxMr2z"
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {
