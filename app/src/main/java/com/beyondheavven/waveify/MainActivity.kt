@@ -24,9 +24,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WaveifyTheme {
-
                 var currentTab by remember { mutableStateOf(NavigationItem.HOME) }
-
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     bottomBar = {
                         NavigationBar(
