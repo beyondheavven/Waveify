@@ -31,9 +31,12 @@ android {
 
         val spotifyClientId = localProperties.getProperty("SPOTIFY_CLIENT_ID") ?: ""
         val spotifyRedirectUri = localProperties.getProperty("SPOTIFY_REDIRECT_URI") ?: ""
+        val spotifyBaseUrl = localProperties.getProperty("SPOTIFY_BASE_URL") ?: ""
 
         buildConfigField("String", "SPOTIFY_CLIENT_ID", "\"$spotifyClientId\"")
         buildConfigField("String", "SPOTIFY_REDIRECT_URI", "\"$spotifyRedirectUri\"")
+        buildConfigField("String", "SPOTIFY_BASE_URL", "\"$spotifyBaseUrl\"")
+
     }
 
     buildTypes {
