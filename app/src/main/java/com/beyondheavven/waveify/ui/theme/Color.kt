@@ -1,7 +1,6 @@
 package com.beyondheavven.waveify.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import java.net.CookieStore
 
 // Accent Colors (Red)
 val WaveifyRed = Color(0xFFFF2A54)
@@ -25,3 +24,8 @@ val RedGradientStart = Color(0xFFFF2A54)
 val RedGradientEnd = Color(0xFF8B0021)
 val PlayerBackground = Color(0xFF191922)
 val DividerColor = Color(0xFF23232E)
+
+//Status Colors
+val StatusSuccess = Color(0xFF00E676)
+val StatusSuccessBg = Color(0xFF102619)
+val StatusErrorBg = Color(0xFF261014)
