@@ -1,5 +1,6 @@
 package com.beyondheavven.waveify.data.remote.client
 
+import com.beyondheavven.waveify.BuildConfig
 import com.beyondheavven.waveify.data.remote.`interface`.SpotifyApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -8,9 +9,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object SpotifyClient {
 
-    private const val BASE_URL = ""
+    private const val BASE_URL = BuildConfig.SPOTIFY_BASE_URL
 
-    var accessToken: String? = "1POdFZRZbvb...qqillRxMr2z"
+    var accessToken: String? = null
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {

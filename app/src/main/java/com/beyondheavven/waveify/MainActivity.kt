@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.components.HomeScreen
 import com.beyondheavven.waveify.components.NavigationBar
 import com.beyondheavven.waveify.components.NavigationItem
+import com.beyondheavven.waveify.components.ProfileScreen
+import com.beyondheavven.waveify.components.SpotifyLoginButton
 import com.beyondheavven.waveify.ui.theme.WaveifyTheme
 
 class MainActivity : ComponentActivity() {
@@ -34,7 +36,11 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 ) { innerPadding ->
-                    HomeScreen(innerPadding)
+                    when (currentTab) {
+                        NavigationItem.HOME -> HomeScreen(innerPadding)
+                        NavigationItem.PROFILE -> ProfileScreen(innerPadding)
+                        else -> HomeScreen(innerPadding)
+                    }
                 }
             }
         }
