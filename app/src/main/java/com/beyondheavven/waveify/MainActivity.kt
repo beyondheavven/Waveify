@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.components.HomeScreen
+import com.beyondheavven.waveify.components.LibraryScreen
 import com.beyondheavven.waveify.components.NavigationBar
 import com.beyondheavven.waveify.components.NavigationItem
 import com.beyondheavven.waveify.components.ProfileScreen
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
                     when (currentTab) {
                         NavigationItem.HOME -> HomeScreen(innerPadding)
                         NavigationItem.PROFILE -> ProfileScreen(innerPadding)
+                        NavigationItem.LIBRARY -> LibraryScreen(innerPadding)
                         else -> HomeScreen(innerPadding)
                     }
                 }

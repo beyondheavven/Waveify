@@ -85,7 +85,7 @@ fun NavigationBar(
                         .weight(1f)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = null
+                            indication = null,
                         ){
                             onItemSelected(item)
                         },
