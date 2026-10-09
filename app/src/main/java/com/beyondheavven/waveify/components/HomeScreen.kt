@@ -32,6 +32,17 @@ fun HomeScreen(padding: PaddingValues) {
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(16.dp))
+        FavouriteTracksCard(
+            trackCount = 34,
+            isLoggedIn = isSpotifyLoggedIn,
+            onClick = {
+
+            },
+            onPlayClick = {
+
+            },
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+        )
         if (!isSpotifyLoggedIn) {
             Card(
                 colors = CardDefaults.cardColors(
@@ -53,12 +64,6 @@ fun HomeScreen(padding: PaddingValues) {
                     )
                 }
             }
-        } else {
-            Text(
-                text = "Здесь скоро появятся новинки и рекомендации.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
