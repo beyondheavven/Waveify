@@ -1,7 +1,7 @@
-package com.beyondheavven.waveify.data.remote.`interface`
+package com.beyondheavven.waveify.data.remote.spotify.service
 
-import com.beyondheavven.waveify.data.remote.spotify.SpotifySavedTracksResponse
-import com.beyondheavven.waveify.data.remote.spotify.SpotifySearchTracksResponse
+import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySavedTracksResponse
+import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySearchTracksResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

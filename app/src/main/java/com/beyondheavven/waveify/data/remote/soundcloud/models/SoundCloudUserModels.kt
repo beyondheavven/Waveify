@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.data.remote.soundcloud
+package com.beyondheavven.waveify.data.remote.soundcloud.models
 
 import com.google.gson.annotations.SerializedName
 

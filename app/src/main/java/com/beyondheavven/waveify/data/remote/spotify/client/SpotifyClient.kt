@@ -1,7 +1,7 @@
-package com.beyondheavven.waveify.data.remote.client
+package com.beyondheavven.waveify.data.remote.spotify.client
 
 import com.beyondheavven.waveify.BuildConfig
-import com.beyondheavven.waveify.data.remote.`interface`.SpotifyApiService
+import com.beyondheavven.waveify.data.remote.spotify.service.SpotifyApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
