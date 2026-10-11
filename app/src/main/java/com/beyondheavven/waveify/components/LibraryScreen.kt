@@ -93,7 +93,7 @@ fun LibraryScreen(
 
     var uiState by remember {
         mutableStateOf<LibraryUiState>(
-            if (isSpotifyLoggedIn) LibraryUiState.Loading else LibraryUiState.NotAuthorized
+            if (hasAnySource) LibraryUiState.Loading else LibraryUiState.NotAuthorized
         )
     }
 
@@ -156,9 +156,8 @@ fun LibraryScreen(
 
                         allTracks.addAll(scTracks)
                     }
-                    uiState = LibraryUiState.Success(allTracks)
                 }
-
+                uiState = LibraryUiState.Success(allTracks)
             } catch (e: Exception) {
                 uiState = LibraryUiState.Error(e.localizedMessage ?: "Failed to fetch library")
             }
@@ -166,10 +165,12 @@ fun LibraryScreen(
     }
 
     LaunchedEffect(
-        isSpotifyLoggedIn
+        hasAnySource
     ) {
-        if (isSpotifyLoggedIn){
+        if (hasAnySource){
             loadingLibraryTracks()
+        } else {
+            uiState = LibraryUiState.NotAuthorized
         }
     }
 
