@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -83,13 +84,19 @@ fun LibraryScreen(
         }
     }
 
+    LaunchedEffect(
+        isSpotifyLoggedIn
+    ) {
+        if (isSpotifyLoggedIn){
+            loadingLibraryTracks()
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(DarkBackground)
-            .padding(horizontal = 5.dp, vertical = 5.dp)
+            .padding(paddingValues = padding)
     ) {
-        Text("SomeText")
     }
 }
