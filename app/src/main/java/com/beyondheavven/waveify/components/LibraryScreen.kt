@@ -140,19 +140,21 @@ fun LibraryScreen(
                         }
 
                         val scUser = SoundCloudClient.api.resolveUser(profileUrl)
-                        val scResponse = SoundCloudClient.api.getUserTracks(userId = scUser.id, limit = 50)
+                        val scResponse = SoundCloudClient.api.getUserLikes(userId = scUser.id, limit = 50)
 
-                        val scTracks = scResponse.collection.map { track ->
-                            val totalSec = track.durationMs / 1000
-                            TrackUiModel(
-                                id = "sc_${track.id}",
-                                title = track.title,
-                                artist = track.user?.username ?: "SoundCloud Artist",
-                                coverUrl = track.artworkUrl?.replace("-large", "-t500x500"),
-                                durationFormatted = String.format("%d:%02d", totalSec / 60, totalSec % 60),
-                                source = TrackSource.SOUNDCLOUD
-                            )
-                        }
+                        val scTracks = scResponse.collection
+                            .mapNotNull { it.track }
+                            .map { track ->
+                                val totalSec = track.durationMs / 1000
+                                TrackUiModel(
+                                    id = "sc_${track.id}",
+                                    title = track.title,
+                                    artist = track.user.username,
+                                    coverUrl = track.artworkUrl?.replace("-large", "-t500x500"),
+                                    durationFormatted = String.format("%d:%02d", totalSec / 60, totalSec % 60),
+                                    source = TrackSource.SOUNDCLOUD
+                                )
+                            }
 
                         allTracks.addAll(scTracks)
                     }
@@ -281,7 +283,7 @@ fun LibraryScreen(
                     FilterChip(
                         selected = selectedFilter == LibraryFilter.SOUNDCLOUD,
                         onClick = {selectedFilter = LibraryFilter.SOUNDCLOUD},
-                        label = {Text("Soundcloud")},
+                        label = {Text("SoundCloud")},
                         leadingIcon = {
                             Box(
                                 modifier = Modifier
@@ -327,7 +329,7 @@ fun LibraryScreen(
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(
-                                text = "Connect Your Accounts",
+                                text = "Connect your account",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = TextSecondary,
                                 textAlign = TextAlign.Center
