@@ -1,5 +1,6 @@
 package com.beyondheavven.waveify.data.remote.soundcloud.service
 
+import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCLoudLikesResponse
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudTracksResponse
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudUserModel
 import retrofit2.http.GET
@@ -23,4 +24,13 @@ interface SoundCloudApiService {
         @Path("limit")
         limit: Int = 50
     ): SoundCloudTracksResponse
+
+    @GET("users/{userId}/likes")
+    suspend fun getUserLikes(
+        @Path("userId")
+        userId: Long,
+
+        @Query("limit")
+        limit: Int = 50
+    ): SoundCLoudLikesResponse
 }
