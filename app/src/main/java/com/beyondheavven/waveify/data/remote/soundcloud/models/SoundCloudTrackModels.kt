@@ -12,7 +12,7 @@ data class SoundCloudTrackModel(
     val title: String,
 
     @SerializedName("duration")
-    val durationMs: String,
+    val durationMs: Long,
 
     @SerializedName("artwork_url")
     val artworkUrl: String?,

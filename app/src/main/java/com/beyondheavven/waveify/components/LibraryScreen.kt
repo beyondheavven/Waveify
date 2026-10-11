@@ -48,7 +48,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
+import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySavedTracksResponse
 import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
 import com.beyondheavven.waveify.ui.theme.DividerColor
@@ -82,6 +84,8 @@ fun LibraryScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val isSpotifyLoggedIn = !SpotifyClient.accessToken.isNullOrEmpty()
+    val isSoundCloudConnected = !SoundCloudClient.connectedUsername.isNullOrEmpty()
+    val hasAnySource = isSpotifyLoggedIn || isSoundCloudConnected
 
     var selectedFilter by remember { mutableStateOf(LibraryFilter.ALL) }
     var searchQuery by remember { mutableStateOf("") }
@@ -94,7 +98,7 @@ fun LibraryScreen(
     }
 
     fun loadingLibraryTracks() {
-        if (!isSpotifyLoggedIn) {
+        if (!hasAnySource) {
             uiState = LibraryUiState.NotAuthorized
             return
         }
@@ -102,21 +106,59 @@ fun LibraryScreen(
         coroutineScope.launch {
             uiState = LibraryUiState.Loading
             try {
-                val response = SpotifyClient.api.getSavedTracks(limit = 50)
+                val allTracks = mutableListOf<TrackUiModel>()
 
-                val spotifyTracks = response.items.map { item ->
-                    val track = item.track
-                    val totalSec = track.durationMs / 1000
-                    TrackUiModel(
-                        id = track.id,
-                        title = track.name,
-                        artist = track.artists.joinToString(", ") { it.name },
-                        coverUrl = track.album?.images?.firstOrNull()?.url,
-                        durationFormatted = String.format("%d:%02d", totalSec / 60, totalSec % 60),
-                        source = TrackSource.SPOTIFY
-                    )
+                if (isSpotifyLoggedIn) {
+                    try {
+                        val spotifyResponse = SpotifyClient.api.getSavedTracks(limit = 50)
+                        val spotifyTracks = spotifyResponse.items.map { item ->
+                            val track = item.track
+                            val totalSec = track.durationMs / 1000
+                            TrackUiModel(
+                                id = track.id,
+                                title = track.name,
+                                artist = track.artists.joinToString(", ") { it.name },
+                                coverUrl = track.album?.images?.firstOrNull()?.url,
+                                durationFormatted = String.format("%d:%02d", totalSec / 60, totalSec % 60),
+                                source = TrackSource.SPOTIFY
+                            )
+                        }
+
+                        allTracks.addAll(spotifyTracks)
+                    } catch (e: Exception) {
+                        println("Error while loading Spotify tracks: ${e.message}")
+                    }
                 }
-                uiState = LibraryUiState.Success(spotifyTracks)
+
+                if(isSoundCloudConnected) {
+                    val username = SoundCloudClient.connectedUsername
+                    if (!username.isNullOrEmpty()){
+                        val profileUrl = if (username.startsWith("http")){
+                            username
+                        } else {
+                            "https://soundcloud.com/$username"
+                        }
+
+                        val scUser = SoundCloudClient.api.resolveUser(profileUrl)
+                        val scResponse = SoundCloudClient.api.getUserTracks(userId = scUser.id, limit = 50)
+
+                        val scTracks = scResponse.collection.map { track ->
+                            val totalSec = track.durationMs / 1000
+                            TrackUiModel(
+                                id = "sc_${track.id}",
+                                title = track.title,
+                                artist = track.user?.username ?: "SoundCloud Artist",
+                                coverUrl = track.artworkUrl?.replace("-large", "-t500x500"),
+                                durationFormatted = String.format("%d:%02d", totalSec / 60, totalSec % 60),
+                                source = TrackSource.SOUNDCLOUD
+                            )
+                        }
+
+                        allTracks.addAll(scTracks)
+                    }
+                    uiState = LibraryUiState.Success(allTracks)
+                }
+
             } catch (e: Exception) {
                 uiState = LibraryUiState.Error(e.localizedMessage ?: "Failed to fetch library")
             }
