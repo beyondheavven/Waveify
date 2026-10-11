@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object SoundCloudClient {
 
     private const val BASE_URL = BuildConfig.SOUNDCLOUD_BASE_URL
-    var clientId: String = ""
+    var clientId: String = BuildConfig.SOUNDCLOUD_CLIENT_ID
 
     var connectedUsername: String? = null
 
