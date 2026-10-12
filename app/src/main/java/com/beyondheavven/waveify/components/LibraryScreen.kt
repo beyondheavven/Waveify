@@ -247,7 +247,7 @@ fun LibraryScreen(
     ){
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .background(DarkBackground)
                 .padding(paddingValues = padding)
         ) {
@@ -384,8 +384,8 @@ fun LibraryScreen(
 
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 8.dp),
+                        .weight(1f)
+                        .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ){
                     when( val state = uiState){
