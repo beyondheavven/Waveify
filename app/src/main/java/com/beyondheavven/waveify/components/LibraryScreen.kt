@@ -187,50 +187,49 @@ fun LibraryScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ){
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search in saved tracks...", color = TextMuted)},
+                leadingIcon = {
+                    Icon(Icons.Default.Search, contentDescription = "Search", tint = TextSecondary)
+                },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()){
+                        IconButton(
+                            onClick = { searchQuery = "" }
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear", tint = TextSecondary)
+                        }
+                    }
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(14.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = WaveifyRed,
+                    unfocusedBorderColor = DividerColor,
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary,
+                    cursorColor = WaveifyRed,
+                    focusedContainerColor = DarkSurfaceElevated,
+                    unfocusedContainerColor = DarkSurfaceElevated
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
                 Text(
-                    text = "Library",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
+                    text = "Your likes",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.SemiBold,
                     color = TextPrimary
                 )
-
-                if (uiState is LibraryUiState.Success){
-                    IconButton(onClick = { isSearchActive = !isSearchActive}) {
-                        Icon(
-                            imageVector = if (isSearchActive) Icons.Default.Close else Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint = if (isSearchActive) WaveifyRed else TextSecondary
-                        )
-                    }
-                }
-
-                AnimatedVisibility(visible = isSearchActive
-                ) {
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        placeholder = { Text("Search in saved tracks...", color = TextMuted)},
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = WaveifyRed,
-                            unfocusedBorderColor = DividerColor,
-                            focusedTextColor = TextPrimary,
-                            unfocusedTextColor = TextPrimary,
-                            cursorColor = WaveifyRed,
-                            focusedContainerColor = DarkSurfaceElevated,
-                            unfocusedContainerColor = DarkSurfaceElevated
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 12.dp)
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
