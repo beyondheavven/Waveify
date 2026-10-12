@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -45,12 +46,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.keepScreenOn
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySavedTracksResponse
+import com.beyondheavven.waveify.ui.components.rememberNotificationController
 import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
 import com.beyondheavven.waveify.ui.theme.DividerColor
@@ -86,6 +89,10 @@ fun LibraryScreen(
     val isSpotifyLoggedIn = !SpotifyClient.accessToken.isNullOrEmpty()
     val isSoundCloudConnected = !SoundCloudClient.connectedUsername.isNullOrEmpty()
     val hasAnySource = isSpotifyLoggedIn || isSoundCloudConnected
+    val listState = rememberLazyListState()
+    var nextSoundCloudUrl by remember {mutableStateOf<String?>(null)}
+    var isLoadingMore by remember { mutableStateOf(false) }
+    val notificationController = rememberNotificationController()
 
     var selectedFilter by remember { mutableStateOf(LibraryFilter.ALL) }
     var searchQuery by remember { mutableStateOf("") }
@@ -141,6 +148,7 @@ fun LibraryScreen(
 
                         val scUser = SoundCloudClient.api.resolveUser(profileUrl)
                         val scResponse = SoundCloudClient.api.getUserLikes(userId = scUser.id, limit = 50)
+                        nextSoundCloudUrl = scResponse.nextHref
 
                         val scTracks = scResponse.collection
                             .mapNotNull { it.track }
@@ -162,6 +170,38 @@ fun LibraryScreen(
                 uiState = LibraryUiState.Success(allTracks)
             } catch (e: Exception) {
                 uiState = LibraryUiState.Error(e.localizedMessage ?: "Failed to fetch library")
+            }
+        }
+    }
+
+    fun loadMoreTracks(){
+        val nextUrl = nextSoundCloudUrl ?: return
+        if (isLoadingMore) return
+
+        coroutineScope.launch {
+            isLoadingMore = true
+            try {
+                val response = SoundCloudClient.api.getNextLikesPage(nextUrl)
+                nextSoundCloudUrl = response.nextHref
+
+                val newTracks = response.collection
+                    .mapNotNull { it.track }
+                    .map { track ->
+                        val totalSec = track.durationMs / 1000
+                        TrackUiModel(
+                            id = "sc_${track.id}",
+                            title = track.title,
+                            artist = track.user.username,
+                            coverUrl = track.artworkUrl?.replace("-large", "-t500x500"),
+                            durationFormatted = String.format("%d:%02d", totalSec / 60, totalSec % 60),
+                            source = TrackSource.SOUNDCLOUD
+                        )
+                    }
+
+                val currentTracks = (uiState as? LibraryUiState.Success)?.tracks ?: emptyList()
+                uiState = LibraryUiState.Success(currentTracks + newTracks)
+            } catch (e: Exception) {
+                println("Some exception")
             }
         }
     }

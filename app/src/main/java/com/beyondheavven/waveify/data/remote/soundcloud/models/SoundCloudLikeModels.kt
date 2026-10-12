@@ -12,7 +12,7 @@ data class SoundCloudLikeModel(
     val track: SoundCloudTrackModel?
 )
 
-data class SoundCLoudLikesResponse(
+data class SoundCloudLikesResponse(
 
     @SerializedName("collection")
     val collection: List<SoundCloudLikeModel>,
