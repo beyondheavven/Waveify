@@ -39,6 +39,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySavedTracksResponse
+import com.beyondheavven.waveify.ui.components.NotificationState
 import com.beyondheavven.waveify.ui.components.rememberNotificationController
 import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
@@ -114,27 +116,22 @@ fun LibraryScreen(
             uiState = LibraryUiState.Loading
             try {
                 val allTracks = mutableListOf<TrackUiModel>()
-
                 if (isSpotifyLoggedIn) {
-                    try {
-                        val spotifyResponse = SpotifyClient.api.getSavedTracks(limit = 50)
-                        val spotifyTracks = spotifyResponse.items.map { item ->
-                            val track = item.track
-                            val totalSec = track.durationMs / 1000
-                            TrackUiModel(
-                                id = track.id,
-                                title = track.name,
-                                artist = track.artists.joinToString(", ") { it.name },
-                                coverUrl = track.album?.images?.firstOrNull()?.url,
-                                durationFormatted = String.format("%d:%02d", totalSec / 60, totalSec % 60),
-                                source = TrackSource.SPOTIFY
-                            )
-                        }
-
-                        allTracks.addAll(spotifyTracks)
-                    } catch (e: Exception) {
-                        println("Error while loading Spotify tracks: ${e.message}")
+                    val spotifyResponse = SpotifyClient.api.getSavedTracks(limit = 50)
+                    val spotifyTracks = spotifyResponse.items.map { item ->
+                        val track = item.track
+                        val totalSec = track.durationMs / 1000
+                        TrackUiModel(
+                            id = track.id,
+                            title = track.name,
+                            artist = track.artists.joinToString(", ") { it.name },
+                            coverUrl = track.album?.images?.firstOrNull()?.url,
+                            durationFormatted = String.format("%d:%02d", totalSec / 60, totalSec % 60),
+                            source = TrackSource.SPOTIFY
+                        )
                     }
+
+                    allTracks.addAll(spotifyTracks)
                 }
 
                 if(isSoundCloudConnected) {
@@ -170,6 +167,10 @@ fun LibraryScreen(
                 uiState = LibraryUiState.Success(allTracks)
             } catch (e: Exception) {
                 uiState = LibraryUiState.Error(e.localizedMessage ?: "Failed to fetch library")
+                notificationController.show(
+                    message = e.localizedMessage ?: "Failed to fetch tracks",
+                    type = NotificationState.ERROR
+                )
             }
         }
     }
@@ -199,9 +200,14 @@ fun LibraryScreen(
                     }
 
                 val currentTracks = (uiState as? LibraryUiState.Success)?.tracks ?: emptyList()
-                uiState = LibraryUiState.Success(currentTracks + newTracks)
+                uiState = LibraryUiState.Success((currentTracks + newTracks).distinctBy { it.id })
             } catch (e: Exception) {
-                println("Some exception")
+                notificationController.show(
+                    message = "Error while fetching next tracks",
+                    type = NotificationState.ERROR
+                )
+            } finally {
+                isLoadingMore = false
             }
         }
     }
@@ -216,239 +222,285 @@ fun LibraryScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(DarkBackground)
-            .padding(paddingValues = padding)
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val totalItems = listState.layoutInfo.totalItemsCount
+
+            totalItems > 0 && lastVisibleItem >= totalItems - 5
+        }
+    }
+
+    LaunchedEffect(
+        shouldLoadMore.value
     ) {
+        if (shouldLoadMore.value){
+            loadMoreTracks()
+        }
+    }
+
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(DarkBackground)
+    ){
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp)
-        ){
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = { Text("Search in saved tracks...", color = TextMuted)},
-                leadingIcon = {
-                    Icon(Icons.Default.Search, contentDescription = "Search", tint = TextSecondary)
-                },
-                trailingIcon = {
-                    if (searchQuery.isNotEmpty()){
-                        IconButton(
-                            onClick = { searchQuery = "" }
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = "Clear", tint = TextSecondary)
-                        }
-                    }
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(14.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = WaveifyRed,
-                    unfocusedBorderColor = DividerColor,
-                    focusedTextColor = TextPrimary,
-                    unfocusedTextColor = TextPrimary,
-                    cursorColor = WaveifyRed,
-                    focusedContainerColor = DarkSurfaceElevated,
-                    unfocusedContainerColor = DarkSurfaceElevated
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                .background(DarkBackground)
+                .padding(paddingValues = padding)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
             ){
-                Text(
-                    text = "Your likes",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Search in saved tracks...", color = TextMuted)},
+                    leadingIcon = {
+                        Icon(Icons.Default.Search, contentDescription = "Search", tint = TextSecondary)
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()){
+                            IconButton(
+                                onClick = { searchQuery = "" }
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = TextSecondary)
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(14.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = WaveifyRed,
+                        unfocusedBorderColor = DividerColor,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        cursorColor = WaveifyRed,
+                        focusedContainerColor = DarkSurfaceElevated,
+                        unfocusedContainerColor = DarkSurfaceElevated
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)){
-                    FilterChip(
-                        selected = selectedFilter == LibraryFilter.ALL,
-                        onClick = {selectedFilter = LibraryFilter.ALL},
-                        label = {Text("All")},
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = WaveifyRed,
-                            selectedLabelColor = TextPrimary,
-                            containerColor = DarkSurfaceElevated,
-                            labelColor = TextSecondary
-                        ),
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ){
+                    Text(
+                        text = "Your likes",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextPrimary
+                    )
 
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)){
+                        FilterChip(
                             selected = selectedFilter == LibraryFilter.ALL,
-                            selectedBorderColor = WaveifyRed,
-                            borderColor = DividerColor
-                        )
-                    )
+                            onClick = {selectedFilter = LibraryFilter.ALL},
+                            label = {Text("All")},
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = WaveifyRed,
+                                selectedLabelColor = TextPrimary,
+                                containerColor = DarkSurfaceElevated,
+                                labelColor = TextSecondary
+                            ),
 
-                    FilterChip(
-                        selected = selectedFilter == LibraryFilter.SPOTIFY,
-                        onClick = {selectedFilter = LibraryFilter.SPOTIFY},
-                        label = {Text("Spotify")},
-                        leadingIcon = {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .background(MaterialTheme.colorScheme.background,CircleShape)
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = selectedFilter == LibraryFilter.ALL,
+                                selectedBorderColor = WaveifyRed,
+                                borderColor = DividerColor
                             )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = WaveifyRed,
-                            selectedLabelColor = TextPrimary,
-                            containerColor = DarkSurfaceElevated,
-                            labelColor = TextSecondary
-                        ),
+                        )
 
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
+                        FilterChip(
                             selected = selectedFilter == LibraryFilter.SPOTIFY,
-                            selectedBorderColor = WaveifyRed,
-                            borderColor = DividerColor
-                        )
-                    )
-
-                    FilterChip(
-                        selected = selectedFilter == LibraryFilter.SOUNDCLOUD,
-                        onClick = {selectedFilter = LibraryFilter.SOUNDCLOUD},
-                        label = {Text("SoundCloud")},
-                        leadingIcon = {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .background(MaterialTheme.colorScheme.background,CircleShape)
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = WaveifyRed,
-                            selectedLabelColor = TextPrimary,
-                            containerColor = DarkSurfaceElevated,
-                            labelColor = TextSecondary
-                        ),
-
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = selectedFilter == LibraryFilter.SOUNDCLOUD,
-                            selectedBorderColor = WaveifyRed,
-                            borderColor = DividerColor
-                        )
-                    )
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 8.dp),
-                contentAlignment = Alignment.Center
-            ){
-                when( val state = uiState){
-                    is LibraryUiState.NotAuthorized -> {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(24.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.MusicNote,
-                                contentDescription = null,
-                                tint = TextMuted,
-                                modifier = Modifier.size(64.dp)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Text(
-                                text = "Connect your account",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = TextSecondary,
-                                textAlign = TextAlign.Center
-                            )
-
-                            Spacer(modifier = Modifier.height(24.dp))
-
-                            Button(
-                                onClick = {},
-                                colors = ButtonDefaults.buttonColors(containerColor = WaveifyRed),
-                                shape = RoundedCornerShape(12.dp)
-                            ){
-                                Text("Go to profile", color = TextPrimary, fontWeight = FontWeight.SemiBold)
-                            }
-                        }
-                    }
-
-                    is LibraryUiState.Loading -> {
-                        CircularProgressIndicator(color = WaveifyRed)
-                    }
-                    is LibraryUiState.Error -> {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ){
-                            Text(text = "Could not load library",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = TextPrimary,
+                            onClick = {selectedFilter = LibraryFilter.SPOTIFY},
+                            label = {Text("Spotify")},
+                            leadingIcon = {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .background(
+                                            MaterialTheme.colorScheme.background,
+                                            CircleShape
+                                        )
                                 )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            OutlinedButton(
-                                onClick = { loadingLibraryTracks() },
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = WaveifyRed),
-                                border = BorderStroke(1.dp, WaveifyRed)
-                            ) {
-                                Icon(Icons.Default.Refresh, contentDescription = "Refresh", Modifier.size(18.dp))
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = WaveifyRed,
+                                selectedLabelColor = TextPrimary,
+                                containerColor = DarkSurfaceElevated,
+                                labelColor = TextSecondary
+                            ),
 
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Retry")
-                            }
-                        }
-                    }
-                    is LibraryUiState.Success -> {
-                        val sourceFilter = when (selectedFilter) {
-                            LibraryFilter.ALL -> state.tracks
-                            LibraryFilter.SOUNDCLOUD -> state.tracks.filter { it.source ==
-                                TrackSource.SOUNDCLOUD
-                            }
-                            LibraryFilter.SPOTIFY -> state.tracks.filter { it.source ==
-                                TrackSource.SPOTIFY
-                            }
-                        }
-
-                        val finalTracks = if (searchQuery.isBlank()) {
-                            sourceFilter
-                        } else {
-                            sourceFilter.filter {
-                                it.title.contains(searchQuery, ignoreCase = true) ||
-                                        it.artist.contains(searchQuery, ignoreCase = true)
-                            }
-                        }
-
-                        if (finalTracks.isEmpty()){
-                            Text(
-                                text = "Could not found anything for $searchQuery",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = TextMuted
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = selectedFilter == LibraryFilter.SPOTIFY,
+                                selectedBorderColor = WaveifyRed,
+                                borderColor = DividerColor
                             )
-                        } else {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentPadding = PaddingValues(16.dp)
-                            ) {
-                                items(
-                                    finalTracks, key = { it.id }) { track ->
-                                    TrackItem(
-                                        track = track,
-                                        onClick = {
+                        )
 
+                        FilterChip(
+                            selected = selectedFilter == LibraryFilter.SOUNDCLOUD,
+                            onClick = {selectedFilter = LibraryFilter.SOUNDCLOUD},
+                            label = {Text("SoundCloud")},
+                            leadingIcon = {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .background(
+                                            MaterialTheme.colorScheme.background,
+                                            CircleShape
+                                        )
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = WaveifyRed,
+                                selectedLabelColor = TextPrimary,
+                                containerColor = DarkSurfaceElevated,
+                                labelColor = TextSecondary
+                            ),
+
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = selectedFilter == LibraryFilter.SOUNDCLOUD,
+                                selectedBorderColor = WaveifyRed,
+                                borderColor = DividerColor
+                            )
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 8.dp),
+                    contentAlignment = Alignment.Center
+                ){
+                    when( val state = uiState){
+                        is LibraryUiState.NotAuthorized -> {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(24.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MusicNote,
+                                    contentDescription = null,
+                                    tint = TextMuted,
+                                    modifier = Modifier.size(64.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Text(
+                                    text = "Connect your account",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = TextSecondary,
+                                    textAlign = TextAlign.Center
+                                )
+
+                                Spacer(modifier = Modifier.height(24.dp))
+
+                                Button(
+                                    onClick = {},
+                                    colors = ButtonDefaults.buttonColors(containerColor = WaveifyRed),
+                                    shape = RoundedCornerShape(12.dp)
+                                ){
+                                    Text("Go to profile", color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+                        }
+
+                        is LibraryUiState.Loading -> {
+                            CircularProgressIndicator(color = WaveifyRed)
+                        }
+                        is LibraryUiState.Error -> {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ){
+                                Text(text = "Could not load library",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = TextPrimary,
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                OutlinedButton(
+                                    onClick = { loadingLibraryTracks() },
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = WaveifyRed),
+                                    border = BorderStroke(1.dp, WaveifyRed)
+                                ) {
+                                    Icon(Icons.Default.Refresh, contentDescription = "Refresh", Modifier.size(18.dp))
+
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Retry")
+                                }
+                            }
+                        }
+                        is LibraryUiState.Success -> {
+                            val sourceFilter = when (selectedFilter) {
+                                LibraryFilter.ALL -> state.tracks
+                                LibraryFilter.SOUNDCLOUD -> state.tracks.filter { it.source ==
+                                        TrackSource.SOUNDCLOUD
+                                }
+                                LibraryFilter.SPOTIFY -> state.tracks.filter { it.source ==
+                                        TrackSource.SPOTIFY
+                                }
+                            }
+
+                            val finalTracks = if (searchQuery.isBlank()) {
+                                sourceFilter
+                            } else {
+                                sourceFilter.filter {
+                                    it.title.contains(searchQuery, ignoreCase = true) ||
+                                            it.artist.contains(searchQuery, ignoreCase = true)
+                                }
+                            }
+
+                            if (finalTracks.isEmpty()){
+                                Text(
+                                    text = "Could not found anything for $searchQuery",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = TextMuted
+                                )
+                            } else {
+                                LazyColumn(
+                                    state = listState,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentPadding = PaddingValues(bottom = 50.dp, top = 8.dp)
+                                ) {
+                                    items(
+                                        finalTracks, key = { it.id }) { track ->
+                                        TrackItem(
+                                            track = track,
+                                            onClick = {
+                                            }
+                                        )
+                                    }
+
+                                    if(isLoadingMore){
+                                        item{
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth(),
+                                                contentAlignment = Alignment.Center
+                                            ){
+                                                CircularProgressIndicator(
+                                                    color = WaveifyRed,
+                                                    modifier = Modifier.size(25.dp),
+                                                    strokeWidth = 2.dp
+                                                )
+                                            }
                                         }
-                                    )
+                                    }
                                 }
                             }
                         }
@@ -456,5 +508,12 @@ fun LibraryScreen(
                 }
             }
         }
+
+        NotificationBanner(
+            controller = notificationController,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = padding.calculateTopPadding() + 5.dp)
+        )
     }
 }
