@@ -1,6 +1,5 @@
 package com.beyondheavven.waveify.components
 
-import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,14 +37,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
-import com.beyondheavven.waveify.ui.theme.WaveifyRed
+import com.beyondheavven.waveify.ui.components.rememberNotificationController
 import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(padding: PaddingValues) {
     val coroutineScope = rememberCoroutineScope()
 
-    var isSpotifyLoggedIn by remember { mutableStateOf(!SpotifyClient.accessToken.isNullOrEmpty()) }
+    val notificationController = rememberNotificationController()
+
+    var isSpotifyConnected by remember { mutableStateOf(!SpotifyClient.accessToken.isNullOrEmpty()) }
 
     var isSoundCloudConnected by remember { mutableStateOf(!SoundCloudClient.connectedUsername.isNullOrEmpty()) }
 
@@ -63,7 +64,7 @@ fun ProfileScreen(padding: PaddingValues) {
         Text(
             text = "Profile",
             style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.SemiBold
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -86,7 +87,7 @@ fun ProfileScreen(padding: PaddingValues) {
                             modifier = Modifier
                                 .size(12.dp)
                                 .background(
-                                    if (isSpotifyLoggedIn) Color(0xFF1DB954) else Color.Gray,
+                                    if (isSpotifyConnected) Color(0xFF1DB954) else Color.Gray,
                                     CircleShape
                                 )
                         )
@@ -98,19 +99,19 @@ fun ProfileScreen(padding: PaddingValues) {
                         )
                     }
                     Text(
-                        text = if (isSpotifyLoggedIn) "Connected" else "Not connected",
+                        text = if (isSpotifyConnected) "Connected" else "Not connected",
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (isSpotifyLoggedIn) Color(0xFF1DB954) else MaterialTheme.colorScheme.outline
+                        color = if (isSpotifyConnected) Color(0xFF1DB954) else MaterialTheme.colorScheme.outline
                     )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                if (isSpotifyLoggedIn) {
+                if (isSpotifyConnected) {
                     OutlinedButton(
                         onClick = {
                             SpotifyClient.accessToken = null
-                            isSpotifyLoggedIn = false
+                            isSpotifyConnected = false
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -119,8 +120,9 @@ fun ProfileScreen(padding: PaddingValues) {
                 } else {
                     SpotifyLoginButton(
                         onLoginSuccess = {
-                            isSpotifyLoggedIn = true
-                        }
+                            isSpotifyConnected = true
+                        },
+                        notificationController
                     )
                 }
             }
@@ -246,5 +248,4 @@ fun ProfileScreen(padding: PaddingValues) {
             }
         }
     }
-
 }
