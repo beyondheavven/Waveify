@@ -61,7 +61,7 @@ fun ProfileScreen(padding: PaddingValues) {
             .padding(padding)
     ) {
         Text(
-            text = "Профиль",
+            text = "Profile",
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold
         )
@@ -98,7 +98,7 @@ fun ProfileScreen(padding: PaddingValues) {
                         )
                     }
                     Text(
-                        text = if (isSpotifyLoggedIn) "Подключен" else "Не подключен",
+                        text = if (isSpotifyLoggedIn) "Connected" else "Not connected",
                         style = MaterialTheme.typography.bodySmall,
                         color = if (isSpotifyLoggedIn) Color(0xFF1DB954) else MaterialTheme.colorScheme.outline
                     )
@@ -114,7 +114,7 @@ fun ProfileScreen(padding: PaddingValues) {
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Отключить аккаунт", color = MaterialTheme.colorScheme.error)
+                        Text("Disconnect profile", color = MaterialTheme.colorScheme.error)
                     }
                 } else {
                     SpotifyLoginButton(
@@ -183,7 +183,7 @@ fun ProfileScreen(padding: PaddingValues) {
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Turn off profile", color = MaterialTheme.colorScheme.error)
+                        Text("Disconnect profile", color = MaterialTheme.colorScheme.error)
                     }
                 } else {
                     OutlinedTextField(

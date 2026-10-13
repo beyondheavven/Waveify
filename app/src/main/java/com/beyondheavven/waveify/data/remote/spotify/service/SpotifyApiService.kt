@@ -27,4 +27,5 @@ interface SpotifyApiService {
         @Query("offset")
         offset: Int = 0
     ): SpotifySavedTracksResponse
+
 }

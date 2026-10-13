@@ -28,8 +28,6 @@ fun SpotifyLoginButton(
         when(response.type){
             AuthorizationResponse.Type.TOKEN -> {
                 val token = response.accessToken
-                println("Токен успешно получен")
-
                 SpotifyClient.accessToken = token
                 onLoginSuccess()
             }
@@ -46,7 +44,7 @@ fun SpotifyLoginButton(
             if (activity != null){
                 val builder = AuthorizationRequest.Builder(
                     BuildConfig.SPOTIFY_CLIENT_ID,
-                    AuthorizationResponse.Type.TOKEN,
+                    AuthorizationResponse.Type.CODE,
                     BuildConfig.SPOTIFY_REDIRECT_URI
                 )
                 builder.setScopes(arrayOf("user-library-read", "playlist-read-private"))
