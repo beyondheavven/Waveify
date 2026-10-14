@@ -7,8 +7,7 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface SpotifyAuthService {
-
-    @POST("https://accounts.spotify.com/api/token")
+    @POST("/api/token")
     @FormUrlEncoded
     suspend fun exchangeCode(
 

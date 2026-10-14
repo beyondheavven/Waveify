@@ -37,22 +37,9 @@ fun SpotifyLoginButton(
         val response = AuthorizationClient.getResponse(result.resultCode, result.data)
         when(response.type){
             AuthorizationResponse.Type.CODE -> {
-                response.code?.let { code ->
-                    coroutineScope.launch {
-                        val success = SpotifyClient.exchangeCodeForToken(code)
-                        if (success) {
-                            notificationController.show(
-                                message = "Successfully connected to Spotify",
-                                NotificationState.SUCCESS
-                            )
-                            onLoginSuccess()
-                        } else {
-                            notificationController.show(
-                                message = "Failed to obtain token",
-                                NotificationState.ERROR
-                            )
-                        }
-                    }
+                val code = response.code
+                coroutineScope.launch {
+                    handleCodeReceived(code, notificationController, onLoginSuccess)
                 }
             }
             AuthorizationResponse.Type.TOKEN -> {
@@ -62,7 +49,6 @@ fun SpotifyLoginButton(
                     message = "Successfully connected to Spotify",
                     NotificationState.SUCCESS
                 )
-                onLoginSuccess()
             }
             AuthorizationResponse.Type.ERROR -> {
                 notificationController.show(
@@ -100,4 +86,24 @@ fun SpotifyLoginButton(
         Text("Connect profile", color = Color.White)
     }
 
+}
+
+private suspend fun handleCodeReceived(
+    code: String,
+    notificationController : NotificationController,
+    onLoginSuccess: () -> Unit
+) {
+    val success = SpotifyClient.exchangeCodeForToken(code)
+    if (success) {
+        notificationController.show(
+            message = "Successfully connected to Spotify",
+            NotificationState.SUCCESS
+        )
+        onLoginSuccess()
+    } else {
+        notificationController.show(
+            message = "Failed to obtain token",
+            NotificationState.ERROR
+        )
+    }
 }

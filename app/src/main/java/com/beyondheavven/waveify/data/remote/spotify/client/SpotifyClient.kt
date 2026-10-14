@@ -13,10 +13,9 @@ object SpotifyClient {
 
     private const val BASE_URL = BuildConfig.SPOTIFY_BASE_URL
     private const val ACCOUNTS_URL = BuildConfig.ACCOUNTS_BASE_URL
+    private const val CLIENT_SECRET = BuildConfig.SPOTIFY_SECRET
 
     private const val CLIENT_ID = BuildConfig.SPOTIFY_CLIENT_ID
-
-    private const val SECRET = BuildConfig.SPOTIFY_SECRET
 
     var accessToken: String? = null
 
@@ -55,7 +54,7 @@ object SpotifyClient {
 
     suspend fun exchangeCodeForToken(code: String): Boolean {
         return try {
-            val credentials = "${BuildConfig.SPOTIFY_CLIENT_ID}:${BuildConfig.SPOTIFY_SECRET}"
+            val credentials = "${CLIENT_ID}:${CLIENT_SECRET}"
             val basicAuth = "Basic " + Base64.encodeToString(
                 credentials.toByteArray(),
                 Base64.NO_WRAP
