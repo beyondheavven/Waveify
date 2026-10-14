@@ -8,6 +8,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -18,22 +19,42 @@ import com.beyondheavven.waveify.ui.components.NotificationState
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
+import kotlinx.coroutines.launch
 
 @Composable
 fun SpotifyLoginButton(
     onLoginSuccess: () -> Unit,
     notificationController: NotificationController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ){
     val context = LocalContext.current
-
     val activity = context as? Activity
+    val coroutineScope = rememberCoroutineScope()
 
     val authLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         val response = AuthorizationClient.getResponse(result.resultCode, result.data)
         when(response.type){
+            AuthorizationResponse.Type.CODE -> {
+                response.code?.let { code ->
+                    coroutineScope.launch {
+                        val success = SpotifyClient.exchangeCodeForToken(code)
+                        if (success) {
+                            notificationController.show(
+                                message = "Successfully connected to Spotify",
+                                NotificationState.SUCCESS
+                            )
+                            onLoginSuccess()
+                        } else {
+                            notificationController.show(
+                                message = "Failed to obtain token",
+                                NotificationState.ERROR
+                            )
+                        }
+                    }
+                }
+            }
             AuthorizationResponse.Type.TOKEN -> {
                 val token = response.accessToken
                 SpotifyClient.accessToken = token
@@ -64,12 +85,11 @@ fun SpotifyLoginButton(
             if (activity != null){
                 val builder = AuthorizationRequest.Builder(
                     BuildConfig.SPOTIFY_CLIENT_ID,
-                    AuthorizationResponse.Type.TOKEN,
+                    AuthorizationResponse.Type.CODE,
                     BuildConfig.SPOTIFY_REDIRECT_URI
                 )
                 builder.setScopes(arrayOf("user-library-read", "playlist-read-private"))
                 val request = builder.build()
-
                 val intent = AuthorizationClient.createLoginActivityIntent(activity, request)
                 authLauncher.launch(intent)
             }

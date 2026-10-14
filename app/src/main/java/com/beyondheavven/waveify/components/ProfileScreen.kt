@@ -122,7 +122,7 @@ fun ProfileScreen(padding: PaddingValues) {
                         onLoginSuccess = {
                             isSpotifyConnected = true
                         },
-                        notificationController
+                        notificationController = notificationController
                     )
                 }
             }
