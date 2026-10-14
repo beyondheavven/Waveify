@@ -9,8 +9,10 @@ data class SpotifySearchTracksResponse(
 
 data class SpotifySavedTracksResponse(
     @SerializedName("items")
-    val items: List<SpotifySavedTrackDto>
+    val items: List<SpotifySavedTrackDto>,
 
+    @SerializedName("next")
+    val nextHref: String? = null
 )
 
 data class SpotifySavedTrackDto(

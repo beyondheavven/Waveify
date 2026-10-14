@@ -1,6 +1,5 @@
 package com.beyondheavven.waveify.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,13 +46,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.keepScreenOn
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
-import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySavedTracksResponse
 import com.beyondheavven.waveify.ui.components.NotificationState
 import com.beyondheavven.waveify.ui.components.rememberNotificationController
 import com.beyondheavven.waveify.ui.theme.DarkBackground
@@ -65,6 +62,7 @@ import com.beyondheavven.waveify.ui.theme.TextSecondary
 import com.beyondheavven.waveify.ui.theme.TrackSource
 import com.beyondheavven.waveify.ui.theme.TrackUiModel
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
+import com.spotify.protocol.types.Track
 import kotlinx.coroutines.launch
 
 
@@ -93,6 +91,8 @@ fun LibraryScreen(
     val hasAnySource = isSpotifyLoggedIn || isSoundCloudConnected
     val listState = rememberLazyListState()
     var nextSoundCloudUrl by remember {mutableStateOf<String?>(null)}
+    var nextSpotifyUrl by remember {mutableStateOf<String?>(null)}
+
     var isLoadingMore by remember { mutableStateOf(false) }
     val notificationController = rememberNotificationController()
 
@@ -118,6 +118,8 @@ fun LibraryScreen(
                 val allTracks = mutableListOf<TrackUiModel>()
                 if (isSpotifyLoggedIn) {
                     val spotifyResponse = SpotifyClient.api.getSavedTracks(limit = 50)
+                    nextSpotifyUrl = spotifyResponse.nextHref
+
                     val spotifyTracks = spotifyResponse.items.map { item ->
                         val track = item.track
                         val totalSec = track.durationMs / 1000
@@ -176,34 +178,61 @@ fun LibraryScreen(
     }
 
     fun loadMoreTracks(){
-        val nextUrl = nextSoundCloudUrl ?: return
         if (isLoadingMore) return
+
+        if (nextSpotifyUrl == null && nextSoundCloudUrl == null) return
 
         coroutineScope.launch {
             isLoadingMore = true
             try {
-                val response = SoundCloudClient.api.getNextLikesPage(nextUrl)
-                nextSoundCloudUrl = response.nextHref
 
-                val newTracks = response.collection
-                    .mapNotNull { it.track }
-                    .map { track ->
+                val newTracks = mutableListOf<TrackUiModel>()
+
+                nextSoundCloudUrl?.let { scUrl ->
+                    val scResponse = SoundCloudClient.api.getNextLikesPage(scUrl)
+                    nextSoundCloudUrl = scResponse.nextHref
+
+                    val newScTracks = scResponse.collection
+                        .mapNotNull { it.track }
+                        .map { track ->
+                            val totalSec = track.durationMs / 1000
+                            TrackUiModel(
+                                id = "sc_${track.id}",
+                                title = track.title,
+                                artist = track.user.username,
+                                coverUrl = track.artworkUrl?.replace("-large", "-t500x500"),
+                                durationFormatted = String.format("%d:%02d", totalSec / 60, totalSec % 60),
+                                source = TrackSource.SOUNDCLOUD
+                            )
+                        }
+                    newTracks.addAll(newScTracks)
+                }
+
+                nextSpotifyUrl?.let { spotifyUrl ->
+                    val spotifyResponse = SpotifyClient.api.getNextSavedTracks(url = spotifyUrl, limit = 50)
+                    nextSpotifyUrl = spotifyResponse.nextHref
+                    val newSpotifyTracks = spotifyResponse.items.map { item ->
+                        val track = item.track
                         val totalSec = track.durationMs / 1000
                         TrackUiModel(
-                            id = "sc_${track.id}",
-                            title = track.title,
-                            artist = track.user.username,
-                            coverUrl = track.artworkUrl?.replace("-large", "-t500x500"),
+                            id = track.id,
+                            title = track.name,
+                            artist = track.artists.joinToString(", ") { it.name },
+                            coverUrl = track.album?.images?.firstOrNull()?.url,
                             durationFormatted = String.format("%d:%02d", totalSec / 60, totalSec % 60),
-                            source = TrackSource.SOUNDCLOUD
+                            source = TrackSource.SPOTIFY
                         )
                     }
+                    newTracks.addAll(newSpotifyTracks)
+                }
 
-                val currentTracks = (uiState as? LibraryUiState.Success)?.tracks ?: emptyList()
-                uiState = LibraryUiState.Success((currentTracks + newTracks).distinctBy { it.id })
+                if (newTracks.isNotEmpty()){
+                    val currentTracks = (uiState as? LibraryUiState.Success)?.tracks ?: emptyList()
+                    uiState = LibraryUiState.Success((currentTracks + newTracks).distinctBy { it.id })
+                }
             } catch (e: Exception) {
                 notificationController.show(
-                    message = "Error while fetching next tracks",
+                    message = "Error while fetching next tracks ${e.localizedMessage}",
                     type = NotificationState.ERROR
                 )
             } finally {
