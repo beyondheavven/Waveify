@@ -8,6 +8,7 @@ import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 interface SpotifyApiService {
 
@@ -26,10 +27,19 @@ interface SpotifyApiService {
     @GET("v1/me/tracks")
     suspend fun getSavedTracks(
         @Query("limit")
-        limit: Int = 20,
+        limit: Int = 50,
 
         @Query("offset")
         offset: Int = 0
+    ): SpotifySavedTracksResponse
+
+    @GET
+    suspend fun getNextSavedTracks(
+        @Url
+        url: String,
+
+        @Query("limit")
+        limit: Int = 50
     ): SpotifySavedTracksResponse
 
 }
