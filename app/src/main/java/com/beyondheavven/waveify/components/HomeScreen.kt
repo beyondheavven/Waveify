@@ -52,13 +52,13 @@ fun HomeScreen(padding: PaddingValues) {
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Добро пожаловать!",
+                        text = "Welcome Master!",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Перейдите во вкладку «Профиль», чтобы подключить свой аккаунт Spotify и синхронизировать музыку.",
+                        text = "Go to profile",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

@@ -25,8 +25,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.beyondheavven.waveify.ui.theme.TrackSource
-import com.beyondheavven.waveify.ui.theme.TrackUiModel
+import com.beyondheavven.waveify.ui.components.TrackSource
+import com.beyondheavven.waveify.ui.components.TrackUiModel
 
 @Composable
 fun TrackItem(
