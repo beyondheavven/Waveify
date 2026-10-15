@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.ui.theme
+package com.beyondheavven.waveify.ui.components
 
 data class TrackUiModel(
     val id: String,

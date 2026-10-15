@@ -59,10 +59,9 @@ import com.beyondheavven.waveify.ui.theme.DividerColor
 import com.beyondheavven.waveify.ui.theme.TextMuted
 import com.beyondheavven.waveify.ui.theme.TextPrimary
 import com.beyondheavven.waveify.ui.theme.TextSecondary
-import com.beyondheavven.waveify.ui.theme.TrackSource
-import com.beyondheavven.waveify.ui.theme.TrackUiModel
+import com.beyondheavven.waveify.ui.components.TrackSource
+import com.beyondheavven.waveify.ui.components.TrackUiModel
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
-import com.spotify.protocol.types.Track
 import kotlinx.coroutines.launch
 
 
@@ -82,8 +81,7 @@ sealed interface LibraryUiState {
 
 @Composable
 fun LibraryScreen(
-    padding: PaddingValues,
-    modifier: Modifier = Modifier
+    padding: PaddingValues
 ) {
     val coroutineScope = rememberCoroutineScope()
     val isSpotifyLoggedIn = !SpotifyClient.accessToken.isNullOrEmpty()
@@ -98,7 +96,6 @@ fun LibraryScreen(
 
     var selectedFilter by remember { mutableStateOf(LibraryFilter.ALL) }
     var searchQuery by remember { mutableStateOf("") }
-    var isSearchActive by remember { mutableStateOf(false) }
 
     var uiState by remember {
         mutableStateOf<LibraryUiState>(

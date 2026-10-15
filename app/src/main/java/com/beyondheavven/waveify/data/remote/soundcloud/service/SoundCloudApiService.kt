@@ -16,16 +16,6 @@ interface SoundCloudApiService {
         profileUrl: String
     ): SoundCloudUserModel
 
-
-    @GET("users/{userId}/tracks")
-    suspend fun getUserTracks(
-        @Path("userId")
-        userId: Long,
-
-        @Path("limit")
-        limit: Int = 50
-    ): SoundCloudTracksResponse
-
     @GET("users/{userId}/likes")
     suspend fun getUserLikes(
         @Path("userId")
