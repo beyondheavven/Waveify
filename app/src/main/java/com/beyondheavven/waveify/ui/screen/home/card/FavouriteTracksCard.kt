@@ -1,6 +1,5 @@
-package com.beyondheavven.waveify.components
+package com.beyondheavven.waveify.ui.screen.home.card
 
-import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -38,7 +37,6 @@ import com.beyondheavven.waveify.ui.theme.RedGradientEnd
 import com.beyondheavven.waveify.ui.theme.RedGradientStart
 import com.beyondheavven.waveify.ui.theme.TextPrimary
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
-import org.w3c.dom.Text
 
 
 @Composable

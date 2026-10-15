@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.components
+package com.beyondheavven.waveify.ui.screen.library
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -51,32 +51,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
-import com.beyondheavven.waveify.ui.components.NotificationState
-import com.beyondheavven.waveify.ui.components.rememberNotificationController
+import com.beyondheavven.waveify.data.model.TrackSource
 import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
 import com.beyondheavven.waveify.ui.theme.DividerColor
 import com.beyondheavven.waveify.ui.theme.TextMuted
 import com.beyondheavven.waveify.ui.theme.TextPrimary
 import com.beyondheavven.waveify.ui.theme.TextSecondary
-import com.beyondheavven.waveify.ui.components.TrackSource
-import com.beyondheavven.waveify.ui.components.TrackUiModel
+import com.beyondheavven.waveify.data.model.TrackUiModel
+import com.beyondheavven.waveify.ui.component.NotificationBanner
+import com.beyondheavven.waveify.ui.component.NotificationState
+import com.beyondheavven.waveify.ui.component.TrackItem
+import com.beyondheavven.waveify.ui.component.rememberNotificationController
+import com.beyondheavven.waveify.ui.screen.library.components.LibraryFilterChip
+import com.beyondheavven.waveify.ui.screen.library.components.LibrarySearchBar
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
 import kotlinx.coroutines.launch
-
-
-enum class LibraryFilter {
-    ALL,
-    SPOTIFY,
-    SOUNDCLOUD
-}
-
-sealed interface LibraryUiState {
-    object NotAuthorized: LibraryUiState
-    object Loading: LibraryUiState
-    data class Error(val message: String) : LibraryUiState
-    data class Success(val tracks: List<TrackUiModel>) : LibraryUiState
-}
 
 
 @Composable
@@ -95,6 +85,7 @@ fun LibraryScreen(
     val notificationController = rememberNotificationController()
 
     var selectedFilter by remember { mutableStateOf(LibraryFilter.ALL) }
+
     var searchQuery by remember { mutableStateOf("") }
 
     var uiState by remember {
@@ -206,7 +197,7 @@ fun LibraryScreen(
                 }
 
                 nextSpotifyUrl?.let { spotifyUrl ->
-                    val spotifyResponse = SpotifyClient.api.getNextSavedTracks(url = spotifyUrl, limit = 50)
+                    val spotifyResponse = SpotifyClient.api.getNextSavedTracks(spotifyUrl)
                     nextSpotifyUrl = spotifyResponse.nextHref
                     val newSpotifyTracks = spotifyResponse.items.map { item ->
                         val track = item.track
@@ -282,131 +273,17 @@ fun LibraryScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 16.dp)
             ){
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search in saved tracks...", color = TextMuted)},
-                    leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = "Search", tint = TextSecondary)
-                    },
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()){
-                            IconButton(
-                                onClick = { searchQuery = "" }
-                            ) {
-                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = TextSecondary)
-                            }
-                        }
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(14.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = WaveifyRed,
-                        unfocusedBorderColor = DividerColor,
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary,
-                        cursorColor = WaveifyRed,
-                        focusedContainerColor = DarkSurfaceElevated,
-                        unfocusedContainerColor = DarkSurfaceElevated
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                LibrarySearchBar(
+                    searchQuery,
+                    onQueryChange = {searchQuery = it}
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Text(
-                        text = "Your likes",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = TextPrimary
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)){
-                        FilterChip(
-                            selected = selectedFilter == LibraryFilter.ALL,
-                            onClick = {selectedFilter = LibraryFilter.ALL},
-                            label = {Text("All")},
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = WaveifyRed,
-                                selectedLabelColor = TextPrimary,
-                                containerColor = DarkSurfaceElevated,
-                                labelColor = TextSecondary
-                            ),
-
-                            border = FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = selectedFilter == LibraryFilter.ALL,
-                                selectedBorderColor = WaveifyRed,
-                                borderColor = DividerColor
-                            )
-                        )
-
-                        FilterChip(
-                            selected = selectedFilter == LibraryFilter.SPOTIFY,
-                            onClick = {selectedFilter = LibraryFilter.SPOTIFY},
-                            label = {Text("Spotify")},
-                            leadingIcon = {
-                                Box(
-                                    modifier = Modifier
-                                        .size(8.dp)
-                                        .background(
-                                            MaterialTheme.colorScheme.background,
-                                            CircleShape
-                                        )
-                                )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = WaveifyRed,
-                                selectedLabelColor = TextPrimary,
-                                containerColor = DarkSurfaceElevated,
-                                labelColor = TextSecondary
-                            ),
-
-                            border = FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = selectedFilter == LibraryFilter.SPOTIFY,
-                                selectedBorderColor = WaveifyRed,
-                                borderColor = DividerColor
-                            )
-                        )
-
-                        FilterChip(
-                            selected = selectedFilter == LibraryFilter.SOUNDCLOUD,
-                            onClick = {selectedFilter = LibraryFilter.SOUNDCLOUD},
-                            label = {Text("SoundCloud")},
-                            leadingIcon = {
-                                Box(
-                                    modifier = Modifier
-                                        .size(8.dp)
-                                        .background(
-                                            MaterialTheme.colorScheme.background,
-                                            CircleShape
-                                        )
-                                )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = WaveifyRed,
-                                selectedLabelColor = TextPrimary,
-                                containerColor = DarkSurfaceElevated,
-                                labelColor = TextSecondary
-                            ),
-
-                            border = FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = selectedFilter == LibraryFilter.SOUNDCLOUD,
-                                selectedBorderColor = WaveifyRed,
-                                borderColor = DividerColor
-                            )
-                        )
-                    }
-                }
+                LibraryFilterChip(
+                    selectedFilter = selectedFilter,
+                    onFilterSelected = { selectedFilter = it}
+                )
 
                 Box(
                     modifier = Modifier

@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.components
+package com.beyondheavven.waveify.ui.screen.profile.spotify
 
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -14,8 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import com.beyondheavven.waveify.BuildConfig
-import com.beyondheavven.waveify.ui.components.NotificationController
-import com.beyondheavven.waveify.ui.components.NotificationState
+import com.beyondheavven.waveify.ui.component.NotificationController
+import com.beyondheavven.waveify.ui.component.NotificationState
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse

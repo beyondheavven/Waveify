@@ -36,10 +36,7 @@ interface SpotifyApiService {
     @GET
     suspend fun getNextSavedTracks(
         @Url
-        url: String,
-
-        @Query("limit")
-        limit: Int = 50
+        url: String
     ): SpotifySavedTracksResponse
 
 }
