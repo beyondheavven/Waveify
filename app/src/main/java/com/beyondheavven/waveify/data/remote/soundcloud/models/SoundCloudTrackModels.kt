@@ -18,14 +18,39 @@ data class SoundCloudTrackModel(
     val artworkUrl: String?,
 
     @SerializedName("user")
-    val user: SoundCloudUserModel
+    val user: SoundCloudUserModel,
+
+    @SerializedName("media")
+    val media: SoundCloudMediaModel? = null
 )
 
+data class SoundCloudMediaModel(
 
-data class SoundCloudTracksResponse(
-    @SerializedName("collection")
-    val collection: List<SoundCloudTrackModel>,
+    @SerializedName("transcodings")
+    val transcodings: List<SoundCloudTranscodingModel> = emptyList()
+)
 
-    @SerializedName("next_href")
-    val nextHref: String?
+data class SoundCloudTranscodingModel(
+
+    @SerializedName("url")
+    val url: String,
+
+    @SerializedName("format")
+    val format: SoundCloudFormatModel
+
+)
+
+data class SoundCloudFormatModel(
+
+    @SerializedName("protocol")
+    val protocol: String,
+
+    @SerializedName("mime_type")
+    val mimeType: String
+)
+
+data class SoundCloudStreamResponse(
+
+    @SerializedName("url")
+    val httpUrl: String
 )
