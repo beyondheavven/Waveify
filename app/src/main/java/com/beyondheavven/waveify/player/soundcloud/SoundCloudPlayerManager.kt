@@ -1,15 +1,16 @@
 package com.beyondheavven.waveify.player.soundcloud
 
-import android.media.AudioAttributes
-import android.media.MediaPlayer
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
-import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudTrackModel
-import com.beyondheavven.waveify.player.soundcloud.SoundCloudPlayerManager.isPlayingSc
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,7 +20,7 @@ object SoundCloudPlayerManager {
 
     private const val TAG = "SoundCloudPlayer"
 
-    private var mediaPlayer: MediaPlayer? = null
+    private var exoPlayer: ExoPlayer? = null
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -32,17 +33,17 @@ object SoundCloudPlayerManager {
     var currentTrackId by mutableStateOf<Long?>(null)
         private set
 
-    var isLoading by mutableStateOf(false)
+    var isLoadingSc by mutableStateOf(false)
         private set
 
-    fun play(track: TrackUiModel) {
+    fun play(track: TrackUiModel, context: Context) {
         val transcodingUrl = track.streamUrl
         if(transcodingUrl == null){
             Log.e(TAG, "No suitable audio stream found for tracks: ${track.title}")
             return
         }
 
-        isLoading = true
+        isLoadingSc = true
         currentTrackTitle = track.title
 
         scope.launch {
@@ -51,64 +52,55 @@ object SoundCloudPlayerManager {
                 val directMp3Url = streamResponse.httpUrl
 
                 withContext(Dispatchers.Main){
-                    playUrl(directMp3Url)
+                    playUrl(directMp3Url, context)
                 }
             } catch (e: Exception){
                 Log.e(TAG, "Failed to resolve stream url", e)
-                isLoading = false
+                withContext(Dispatchers.Main){
+                    isLoadingSc = false
+
+                }
             }
         }
     }
 
-    private fun playUrl(url: String){
-        release()
+    private fun playUrl(url: String, context: Context){
+        if (exoPlayer == null) {
+            exoPlayer = ExoPlayer.Builder(context.applicationContext).build().apply {
+                addListener(object : Player.Listener {
+                    override fun onIsPlayingChanged(isPlaying: Boolean) {
+                        isPlayingSc = isPlaying
+                    }
 
-        mediaPlayer = MediaPlayer().apply {
-            setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .build()
-            )
-            setDataSource(url)
-            prepareAsync()
+                    override fun onPlaybackStateChanged(playbackState: Int) {
+                        isLoadingSc = playbackState == Player.STATE_BUFFERING
+                    }
 
-            setOnPreparedListener { mp ->
-                isLoading = false
-                mp.start()
-                isPlayingSc = true
+                    override fun onPlayerError(error: PlaybackException) {
+                        Log.e(TAG, "ExoPlayer error: ${error.message}", error)
+                        isLoadingSc = false
+                        isPlayingSc = false
+                    }
+
+                })
             }
+        }
 
-            setOnCompletionListener {
-                isPlayingSc = false
-            }
-
-            setOnErrorListener { _, what, extra ->
-                Log.e(TAG, "MediaPlayer error: what=$what, extra=$extra")
-                isLoading = false
-                isPlayingSc = false
-                true
-            }
+        val mediaItem = MediaItem.fromUri(url)
+        exoPlayer?.apply {
+            setMediaItem(mediaItem)
+            prepare()
+            play()
         }
 
     }
 
     fun pause(){
-        mediaPlayer?.let {
-            if (it.isPlaying) {
-                it.pause()
-                isPlayingSc = false
-            }
-        }
+        exoPlayer?.pause()
     }
 
     fun resume(){
-        mediaPlayer?.let {
-            if (!it.isPlaying){
-                it.start()
-                isPlayingSc = true
-            }
-        }
+        exoPlayer?.play()
     }
 
     fun togglePlayPause(){
@@ -116,8 +108,8 @@ object SoundCloudPlayerManager {
     }
 
     fun release(){
-        mediaPlayer?.release()
-        mediaPlayer = null
+        exoPlayer?.release()
+        exoPlayer = null
         isPlayingSc = false
     }
 }

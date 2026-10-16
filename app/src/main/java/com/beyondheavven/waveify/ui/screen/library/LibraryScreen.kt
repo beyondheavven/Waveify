@@ -177,7 +177,7 @@ fun LibraryScreen(
                                                     }
                                                     TrackSource.SOUNDCLOUD -> {
                                                         SpotifyPlayerManager.pause()
-                                                        SoundCloudPlayerManager.play(track)
+                                                        SoundCloudPlayerManager.play(track, context)
                                                     }
                                                 }
                                             }
