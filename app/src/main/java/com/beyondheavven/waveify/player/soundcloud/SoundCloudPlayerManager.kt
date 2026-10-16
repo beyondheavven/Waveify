@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudTrackModel
 import com.beyondheavven.waveify.player.soundcloud.SoundCloudPlayerManager.isPlayingSc
@@ -34,24 +35,19 @@ object SoundCloudPlayerManager {
     var isLoading by mutableStateOf(false)
         private set
 
-    fun play(track: SoundCloudTrackModel) {
-        val transcoding = track.media?.transcodings?.firstOrNull{
-            it.format.protocol == "progressive"
-        } ?: track.media?.transcodings?.firstOrNull()
-
-
-        if(transcoding == null){
+    fun play(track: TrackUiModel) {
+        val transcodingUrl = track.streamUrl
+        if(transcodingUrl == null){
             Log.e(TAG, "No suitable audio stream found for tracks: ${track.title}")
             return
         }
 
         isLoading = true
         currentTrackTitle = track.title
-        currentTrackId = track.id
 
         scope.launch {
             try{
-                val streamResponse = SoundCloudClient.api.getStreamUrl(transcoding.url)
+                val streamResponse = SoundCloudClient.api.getStreamUrl(transcodingUrl)
                 val directMp3Url = streamResponse.httpUrl
 
                 withContext(Dispatchers.Main){

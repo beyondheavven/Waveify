@@ -3,6 +3,7 @@ package com.beyondheavven.waveify.ui.screen.library.repository
 import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
+import com.beyondheavven.waveify.ui.screen.library.LibraryFilter
 
 class LibraryRepository(
 
@@ -63,24 +64,37 @@ class LibraryRepository(
         allTracks.distinctBy { it.id }
     }
 
-    suspend fun loadMoreTracks(): Result<List<TrackUiModel>> = runCatching {
+    fun hasMoreTracks(filter: LibraryFilter): Boolean {
+        return when(filter) {
+            LibraryFilter.ALL -> nextSpotifyUrl != null || nextSoundCloudUrl != null
+            LibraryFilter.SPOTIFY -> nextSpotifyUrl != null
+            LibraryFilter.SOUNDCLOUD -> nextSoundCloudUrl != null
+        }
+    }
+
+    suspend fun loadMoreTracks(filter: LibraryFilter): Result<List<TrackUiModel>> = runCatching {
         val newTracks = mutableListOf<TrackUiModel>()
 
-        nextSoundCloudUrl?.let { url ->
-            runCatching {
-                val scResponse = soundCloudClient.api.getNextLikesPage(url)
-                nextSoundCloudUrl = scResponse.nextHref
-                newTracks += scResponse.collection.mapNotNull { it.track?.toTrackUiModel() }
-            }.onFailure { it.printStackTrace() }
+        if (filter == LibraryFilter.ALL || filter == LibraryFilter.SOUNDCLOUD) {
+            nextSoundCloudUrl?.let { url ->
+                runCatching {
+                    val scResponse = soundCloudClient.api.getNextLikesPage(url)
+                    nextSoundCloudUrl = scResponse.nextHref
+                    newTracks += scResponse.collection.mapNotNull { it.track?.toTrackUiModel() }
+                }.onFailure { it.printStackTrace() }
+            }
         }
 
-        nextSpotifyUrl?.let { url ->
-            runCatching {
-                val spotifyResponse = spotifyClient.api.getNextSavedTracks(url)
-                nextSpotifyUrl = spotifyResponse.nextHref
-                newTracks += spotifyResponse.items.map { it.track.toTrackUiModel() }
-            }.onFailure { it.printStackTrace() }
+        if (filter == LibraryFilter.ALL || filter == LibraryFilter.SPOTIFY) {
+            nextSpotifyUrl?.let { url ->
+                runCatching {
+                    val spotifyResponse = spotifyClient.api.getNextSavedTracks(url)
+                    nextSpotifyUrl = spotifyResponse.nextHref
+                    newTracks += spotifyResponse.items.map { it.track.toTrackUiModel() }
+                }.onFailure { it.printStackTrace() }
+            }
         }
+
         newTracks.distinctBy { it.id }
     }
 

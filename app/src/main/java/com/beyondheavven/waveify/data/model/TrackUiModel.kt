@@ -7,5 +7,6 @@ data class TrackUiModel(
     var artist: String,
     val coverUrl: String?,
     val durationFormatted: String,
-    val source: TrackSource
+    val source: TrackSource,
+    val streamUrl: String? = null
 )

@@ -20,12 +20,13 @@ data class SoundCloudTrackModel(
     @SerializedName("user")
     val user: SoundCloudUserModel,
 
+    @SerializedName("media")
     val media: SoundCloudMediaModel? = null
 )
 
 data class SoundCloudMediaModel(
 
-    @SerializedName("trancodings")
+    @SerializedName("transcodings")
     val transcodings: List<SoundCloudTranscodingModel> = emptyList()
 )
 

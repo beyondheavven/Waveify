@@ -82,7 +82,7 @@ class LibraryViewModel(
 
         viewModelScope.launch {
             isLoadingMore = true
-            repository.loadMoreTracks()
+            repository.loadMoreTracks(selectedFilter)
                 .onSuccess { newTracks ->
                     if (newTracks.isNotEmpty()){
                         uiState = LibraryUiState.Success(tracks = (currentSuccess.tracks + newTracks).distinctBy { it.id })
