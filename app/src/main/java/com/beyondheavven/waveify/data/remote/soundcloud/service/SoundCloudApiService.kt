@@ -1,7 +1,7 @@
 package com.beyondheavven.waveify.data.remote.soundcloud.service
 
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudLikesResponse
-import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudTracksResponse
+import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudStreamResponse
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudUserModel
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -31,4 +31,11 @@ interface SoundCloudApiService {
         @Url
         nextUrl: String
     ): SoundCloudLikesResponse
+
+    @GET
+    suspend fun getStreamUrl(
+
+        @Url
+        url: String
+    ): SoundCloudStreamResponse
 }
