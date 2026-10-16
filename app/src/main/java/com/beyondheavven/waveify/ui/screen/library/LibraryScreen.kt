@@ -74,12 +74,7 @@ fun LibraryScreen(
     padding: PaddingValues
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val isSpotifyLoggedIn = !SpotifyClient.accessToken.isNullOrEmpty()
-    val isSoundCloudConnected = !SoundCloudClient.connectedUsername.isNullOrEmpty()
-    val hasAnySource = isSpotifyLoggedIn || isSoundCloudConnected
     val listState = rememberLazyListState()
-    var nextSoundCloudUrl by remember {mutableStateOf<String?>(null)}
-    var nextSpotifyUrl by remember {mutableStateOf<String?>(null)}
 
     var isLoadingMore by remember { mutableStateOf(false) }
     val notificationController = rememberNotificationController()
