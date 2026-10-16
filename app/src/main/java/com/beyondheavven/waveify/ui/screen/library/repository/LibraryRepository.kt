@@ -23,7 +23,8 @@ class LibraryRepository(
     val isSoundCloudConnected: Boolean
         get() = !soundCloudClient.connectedUsername.isNullOrEmpty()
 
-    val hasAnySource = isSpotifyLoggedIn || isSoundCloudConnected
+    val hasAnySource: Boolean
+        get() = isSpotifyLoggedIn || isSoundCloudConnected
 
     val hasMoreTracks: Boolean
         get() = nextSpotifyUrl != null || nextSoundCloudUrl != null
@@ -35,20 +36,28 @@ class LibraryRepository(
         val allTracks = mutableListOf<TrackUiModel>()
 
         if(isSpotifyLoggedIn){
-            val spotifyResponse = spotifyClient.api.getSavedTracks(limit = 50)
-            nextSpotifyUrl = spotifyResponse.nextHref
-            allTracks += spotifyResponse.items.map { it.track.toTrackUiModel() }
+            runCatching {
+                val spotifyResponse = spotifyClient.api.getSavedTracks(limit = 50)
+                nextSpotifyUrl = spotifyResponse.nextHref
+                allTracks += spotifyResponse.items.map { it.track.toTrackUiModel() }
+            }.onFailure {
+                it.printStackTrace()
+            }
         }
 
         if(isSoundCloudConnected){
-            val username = soundCloudClient.connectedUsername.orEmpty()
-            val userId = cachedSoundcloudUserId ?: resolveSoundCloudUserId(username)
-            cachedSoundcloudUserId = userId
+            runCatching {
+                val username = soundCloudClient.connectedUsername.orEmpty()
+                val userId = cachedSoundcloudUserId ?: resolveSoundCloudUserId(username)
+                cachedSoundcloudUserId = userId
 
-            if (userId != null) {
-                val scResponse = soundCloudClient.api.getUserLikes(userId = userId, limit = 50)
-                nextSoundCloudUrl = scResponse.nextHref
-                allTracks += scResponse.collection.mapNotNull { it.track?.toTrackUiModel() }
+                if (userId != null) {
+                    val scResponse = soundCloudClient.api.getUserLikes(userId = userId, limit = 50)
+                    nextSoundCloudUrl = scResponse.nextHref
+                    allTracks += scResponse.collection.mapNotNull { it.track?.toTrackUiModel() }
+                }
+            }.onFailure {
+                it.printStackTrace()
             }
         }
         allTracks.distinctBy { it.id }
@@ -58,15 +67,19 @@ class LibraryRepository(
         val newTracks = mutableListOf<TrackUiModel>()
 
         nextSoundCloudUrl?.let { url ->
-            val scResponse = soundCloudClient.api.getNextLikesPage(url)
-            nextSoundCloudUrl = scResponse.nextHref
-            newTracks += scResponse.collection.mapNotNull { it.track?.toTrackUiModel() }
+            runCatching {
+                val scResponse = soundCloudClient.api.getNextLikesPage(url)
+                nextSoundCloudUrl = scResponse.nextHref
+                newTracks += scResponse.collection.mapNotNull { it.track?.toTrackUiModel() }
+            }.onFailure { it.printStackTrace() }
         }
 
         nextSpotifyUrl?.let { url ->
-            val spotifyResponse = spotifyClient.api.getNextSavedTracks(url)
-            nextSpotifyUrl = spotifyResponse.nextHref
-            newTracks += spotifyResponse.items.map { it.track.toTrackUiModel() }
+            runCatching {
+                val spotifyResponse = spotifyClient.api.getNextSavedTracks(url)
+                nextSpotifyUrl = spotifyResponse.nextHref
+                newTracks += spotifyResponse.items.map { it.track.toTrackUiModel() }
+            }.onFailure { it.printStackTrace() }
         }
         newTracks.distinctBy { it.id }
     }

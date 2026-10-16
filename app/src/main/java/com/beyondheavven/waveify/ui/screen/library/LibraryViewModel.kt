@@ -53,9 +53,13 @@ class LibraryViewModel(
             }
         }
 
-    fun loadInitialTracks(){
+    fun loadInitialTracks(force: Boolean = false){
         if (!repository.hasAnySource){
             uiState = LibraryUiState.NotAuthorized
+            return
+        }
+
+        if (!force && uiState is LibraryUiState.Success){
             return
         }
 
@@ -72,12 +76,12 @@ class LibraryViewModel(
     }
 
     fun loadMoreTracks(){
-        if (!isLoadingMore || !repository.hasMoreTracks) return
+        if (isLoadingMore || !repository.hasMoreTracks) return
 
         val currentSuccess = uiState as? LibraryUiState.Success ?: return
 
         viewModelScope.launch {
-            uiState = LibraryUiState.Loading
+            isLoadingMore = true
             repository.loadMoreTracks()
                 .onSuccess { newTracks ->
                     if (newTracks.isNotEmpty()){

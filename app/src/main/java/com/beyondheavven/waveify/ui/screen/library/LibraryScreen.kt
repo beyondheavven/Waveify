@@ -58,6 +58,10 @@ fun LibraryScreen(
     val listState = rememberLazyListState()
     val notificationController = rememberNotificationController()
 
+    LaunchedEffect(Unit) {
+        viewModel.loadInitialTracks()
+    }
+
     val shouldLoadMore = remember {
         derivedStateOf {
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
