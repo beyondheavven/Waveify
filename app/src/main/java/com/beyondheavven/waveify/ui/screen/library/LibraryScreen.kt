@@ -32,10 +32,13 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.beyondheavven.waveify.data.model.TrackSource
+import com.beyondheavven.waveify.player.spotify.SpotifyPlayerManager
 import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.TextMuted
 import com.beyondheavven.waveify.ui.theme.TextPrimary
@@ -57,6 +60,7 @@ fun LibraryScreen(
 ) {
     val listState = rememberLazyListState()
     val notificationController = rememberNotificationController()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.loadInitialTracks()
@@ -165,6 +169,14 @@ fun LibraryScreen(
                                         TrackItem(
                                             track = track,
                                             onClick = {
+                                                when (track.source) {
+                                                    TrackSource.SPOTIFY -> {
+                                                        SpotifyPlayerManager.play(track.id, context)
+                                                    }
+                                                    TrackSource.SOUNDCLOUD -> {
+                                                        //TODO
+                                                    }
+                                                }
                                             }
                                         )
                                     }

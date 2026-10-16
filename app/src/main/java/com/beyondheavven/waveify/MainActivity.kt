@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.beyondheavven.waveify.player.spotify.SpotifyPlayerManager
 import com.beyondheavven.waveify.ui.screen.home.HomeScreen
 import com.beyondheavven.waveify.ui.screen.library.LibraryScreen
 import com.beyondheavven.waveify.ui.component.NavigationBar
@@ -45,5 +46,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        SpotifyPlayerManager.disconnect()
     }
 }
