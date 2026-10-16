@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.components
+package com.beyondheavven.waveify.ui.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -25,8 +25,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.beyondheavven.waveify.ui.components.TrackSource
-import com.beyondheavven.waveify.ui.components.TrackUiModel
+import com.beyondheavven.waveify.data.model.TrackSource
+import com.beyondheavven.waveify.data.model.TrackUiModel
 
 @Composable
 fun TrackItem(

@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.components
+package com.beyondheavven.waveify.ui.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource

@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.components
+package com.beyondheavven.waveify.ui.screen.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +37,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
-import com.beyondheavven.waveify.ui.components.rememberNotificationController
+import com.beyondheavven.waveify.ui.screen.profile.spotify.SpotifyLoginButton
+import com.beyondheavven.waveify.ui.component.rememberNotificationController
 import kotlinx.coroutines.launch
 
 @Composable

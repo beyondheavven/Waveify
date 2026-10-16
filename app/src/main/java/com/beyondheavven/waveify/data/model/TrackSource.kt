@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.ui.components
+package com.beyondheavven.waveify.data.model
 
 enum class TrackSource {
     SPOTIFY,

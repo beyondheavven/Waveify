@@ -13,12 +13,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.beyondheavven.waveify.components.HomeScreen
-import com.beyondheavven.waveify.components.LibraryScreen
-import com.beyondheavven.waveify.components.NavigationBar
-import com.beyondheavven.waveify.components.NavigationItem
-import com.beyondheavven.waveify.components.ProfileScreen
-import com.beyondheavven.waveify.components.SpotifyLoginButton
+import com.beyondheavven.waveify.ui.screen.home.HomeScreen
+import com.beyondheavven.waveify.ui.screen.library.LibraryScreen
+import com.beyondheavven.waveify.ui.component.NavigationBar
+import com.beyondheavven.waveify.ui.component.NavigationItem
+import com.beyondheavven.waveify.ui.screen.profile.ProfileScreen
 import com.beyondheavven.waveify.ui.theme.WaveifyTheme
 
 class MainActivity : ComponentActivity() {

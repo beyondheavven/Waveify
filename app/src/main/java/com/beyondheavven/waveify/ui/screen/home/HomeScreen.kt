@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.components
+package com.beyondheavven.waveify.ui.screen.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
+import com.beyondheavven.waveify.ui.screen.home.card.FavouriteTracksCard
 
 @Composable
 fun HomeScreen(padding: PaddingValues) {
