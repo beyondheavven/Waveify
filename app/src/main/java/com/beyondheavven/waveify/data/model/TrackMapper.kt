@@ -1,7 +1,5 @@
-package com.beyondheavven.waveify.ui.screen.library.repository
+package com.beyondheavven.waveify.data.model
 import android.annotation.SuppressLint
-import com.beyondheavven.waveify.data.model.TrackSource
-import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudTrackModel
 import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyTrackDto
 

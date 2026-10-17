@@ -64,7 +64,7 @@ fun LibraryScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.loadInitialTracks()
+        viewModel.syncLibrary()
     }
 
     val shouldLoadMore = remember {
@@ -141,7 +141,7 @@ fun LibraryScreen(
                         is LibraryUiState.Error -> {
                             ErrorContent(
                                 message = state.message,
-                                onRetry = { viewModel.loadInitialTracks() }
+                                onRetry = { viewModel.syncLibrary() }
                             )
                         }
                         is LibraryUiState.Success -> {
