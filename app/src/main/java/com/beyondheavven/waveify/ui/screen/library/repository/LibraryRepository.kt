@@ -1,6 +1,7 @@
 package com.beyondheavven.waveify.ui.screen.library.repository
 
 import com.beyondheavven.waveify.data.model.TrackUiModel
+import com.beyondheavven.waveify.data.model.toTrackUiModel
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import com.beyondheavven.waveify.ui.screen.library.LibraryFilter
