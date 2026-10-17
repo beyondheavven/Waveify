@@ -1,5 +1,6 @@
 package com.beyondheavven.waveify.ui.screen.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +40,12 @@ import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import com.beyondheavven.waveify.ui.screen.profile.spotify.SpotifyLoginButton
 import com.beyondheavven.waveify.ui.component.rememberNotificationController
+import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
+import com.beyondheavven.waveify.ui.theme.DividerColor
+import com.beyondheavven.waveify.ui.theme.TextMuted
+import com.beyondheavven.waveify.ui.theme.WaveifyRed
+import com.beyondheavven.waveify.ui.theme.WaveifyRedDark
+import com.beyondheavven.waveify.ui.theme.WaveifyRedLight
 import kotlinx.coroutines.launch
 
 @Composable
@@ -73,8 +80,12 @@ fun ProfileScreen(padding: PaddingValues) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(
+                1.dp,
+                if (isSpotifyConnected) WaveifyRed.copy(alpha = 0.4f) else DividerColor
+            ),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = DarkSurfaceElevated
             )
         ) {
             Column(modifier = Modifier.padding(16.dp)){
@@ -88,7 +99,7 @@ fun ProfileScreen(padding: PaddingValues) {
                             modifier = Modifier
                                 .size(12.dp)
                                 .background(
-                                    if (isSpotifyConnected) Color(0xFF1DB954) else Color.Gray,
+                                    if (isSpotifyConnected) WaveifyRedDark else TextMuted,
                                     CircleShape
                                 )
                         )
@@ -102,7 +113,7 @@ fun ProfileScreen(padding: PaddingValues) {
                     Text(
                         text = if (isSpotifyConnected) "Connected" else "Not connected",
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (isSpotifyConnected) Color(0xFF1DB954) else MaterialTheme.colorScheme.outline
+                        color = if (isSpotifyConnected) WaveifyRedLight else TextMuted
                     )
                 }
 
@@ -133,8 +144,12 @@ fun ProfileScreen(padding: PaddingValues) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(
+                1.dp,
+                if (isSoundCloudConnected) WaveifyRed.copy(alpha = 0.4f) else DividerColor
+            ),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                containerColor = DarkSurfaceElevated
             )
         ) {
             Column(
@@ -151,7 +166,7 @@ fun ProfileScreen(padding: PaddingValues) {
                         Box(
                             modifier = Modifier
                                 .size(12.dp)
-                                .background(if (isSoundCloudConnected) Color(0xFFFF5500) else Color.Gray, CircleShape)
+                                .background(if (isSoundCloudConnected) WaveifyRedDark else TextMuted, CircleShape)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
@@ -164,7 +179,7 @@ fun ProfileScreen(padding: PaddingValues) {
                     Text(
                         text = if (isSoundCloudConnected) "Connected" else "Not connected",
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (isSoundCloudConnected) Color(0xFFFF5500) else MaterialTheme.colorScheme.outline
+                        color = if (isSoundCloudConnected) WaveifyRedLight else TextMuted
                     )
                 }
 
@@ -232,7 +247,8 @@ fun ProfileScreen(padding: PaddingValues) {
                             }
                         },
                         enabled = !isSoundCloudLoading && soundCloudInput.isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5500)),
+                        colors = ButtonDefaults.buttonColors(containerColor = WaveifyRedDark),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         if (isSoundCloudLoading){
