@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.beyondheavven.waveify.data.model.TrackSource
 import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.ui.screen.library.repository.LibraryRepository
 import kotlinx.coroutines.launch
@@ -29,18 +28,16 @@ class LibraryViewModel(
     var paginationError by mutableStateOf<String?>(null)
         private set
 
-    init {
-        loadInitialTracks()
-    }
+    private var spotifyTracks by mutableStateOf<List<TrackUiModel>>(emptyList())
+
+    private var soundCloudTracks by mutableStateOf<List<TrackUiModel>>(emptyList())
 
     val filteredTracks: List<TrackUiModel>
         get() {
-            val successState = uiState as? LibraryUiState.Success ?: return emptyList()
-
             val sourceFilter = when(selectedFilter){
-                LibraryFilter.ALL -> successState.tracks
-                LibraryFilter.SPOTIFY -> successState.tracks.filter { it.source == TrackSource.SPOTIFY }
-                LibraryFilter.SOUNDCLOUD -> successState.tracks.filter { it.source == TrackSource.SOUNDCLOUD }
+                LibraryFilter.ALL -> interleaveTracks(spotifyTracks, soundCloudTracks)
+                LibraryFilter.SPOTIFY -> spotifyTracks
+                LibraryFilter.SOUNDCLOUD -> soundCloudTracks
             }
 
             if (searchQuery.isBlank()){
@@ -53,44 +50,71 @@ class LibraryViewModel(
             }
         }
 
-    fun loadInitialTracks(force: Boolean = false){
-        if (!repository.hasAnySource){
+    fun syncLibrary() {
+        if (!repository.hasAnySource) {
             uiState = LibraryUiState.NotAuthorized
+            spotifyTracks = emptyList()
+            soundCloudTracks = emptyList()
             return
         }
 
-        if (!force && uiState is LibraryUiState.Success){
-            return
+        if (uiState is LibraryUiState.NotAuthorized) {
+            uiState = LibraryUiState.Loading
         }
 
         viewModelScope.launch {
-            uiState = LibraryUiState.Loading
-            repository.getInitialTracks()
-                .onSuccess { tracks ->
-                    uiState = LibraryUiState.Success(tracks)
+            if (repository.isSpotifyLoggedIn && spotifyTracks.isEmpty()){
+                repository.getInitialSpotifyTracks().onSuccess {
+                    spotifyTracks = it
                 }
-                .onFailure { error ->
-                    uiState = LibraryUiState.Error(error.localizedMessage ?: "Failed to fetch library")
+            } else if (!repository.isSpotifyLoggedIn) {
+                spotifyTracks = emptyList()
+            }
+
+            if (repository.isSoundCloudConnected && soundCloudTracks.isEmpty()) {
+                repository.getInitialSpotifyTracks()
+            }
+
+            if (repository.isSoundCloudConnected && soundCloudTracks.isEmpty()) {
+                repository.getInitialSoundCloudTracks().onSuccess {
+                    soundCloudTracks = it
                 }
+            } else if (!repository.isSoundCloudConnected) {
+                soundCloudTracks = emptyList()
+            }
+
+            uiState = LibraryUiState.Success(filteredTracks)
         }
     }
 
     fun loadMoreTracks(){
-        if (isLoadingMore || !repository.hasMoreTracks) return
+        if (isLoadingMore) return
 
-        val currentSuccess = uiState as? LibraryUiState.Success ?: return
+        val canLoadMore = when(selectedFilter) {
+            LibraryFilter.ALL -> repository.hasMoreSpotifyTracks || repository.hasMoreSoundCloudTracks
+            LibraryFilter.SOUNDCLOUD -> repository.hasMoreSoundCloudTracks
+            LibraryFilter.SPOTIFY -> repository.hasMoreSpotifyTracks
+        }
+
+        if (!canLoadMore) return
 
         viewModelScope.launch {
             isLoadingMore = true
-            repository.loadMoreTracks(selectedFilter)
-                .onSuccess { newTracks ->
-                    if (newTracks.isNotEmpty()){
-                        uiState = LibraryUiState.Success(tracks = (currentSuccess.tracks + newTracks).distinctBy { it.id })
-                    }
+            if ((selectedFilter == LibraryFilter.ALL || selectedFilter == LibraryFilter.SPOTIFY) && repository.hasMoreSpotifyTracks) {
+                repository.loadMoreSpotifyTracks().onSuccess { newTracks ->
+                    spotifyTracks = (spotifyTracks + newTracks).distinctBy { it.id }
+                }.onFailure {
+                    paginationError = it.localizedMessage
                 }
-                .onFailure { error ->
-                    paginationError = error.localizedMessage ?: "Failed to load more tracks"
+            }
+
+            if ((selectedFilter == LibraryFilter.ALL || selectedFilter == LibraryFilter.SOUNDCLOUD) && repository.hasMoreSoundCloudTracks) {
+                repository.loadMoreSoundCloudTracks().onSuccess { newTracks ->
+                    soundCloudTracks = (soundCloudTracks + newTracks).distinctBy { it.id }
+                }.onFailure {
+                    paginationError = it.localizedMessage
                 }
+            }
 
             isLoadingMore = false
         }
@@ -108,7 +132,14 @@ class LibraryViewModel(
         paginationError = null
     }
 
-
-
-
+    private fun interleaveTracks(listA: List<TrackUiModel>, listB: List<TrackUiModel>): List<TrackUiModel> {
+        val result = mutableListOf<TrackUiModel>()
+        val maxLen = maxOf(listA.size, listB.size)
+        for (i in 0 until maxLen) {
+            if (i < listA.size) result.add(listA[i])
+            if (i < listB.size) result.add(listB[i
+            ])
+        }
+        return result
+    }
 }
