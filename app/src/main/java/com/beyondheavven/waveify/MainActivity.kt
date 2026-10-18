@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -14,10 +15,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.player.spotify.SpotifyPlayerManager
+import com.beyondheavven.waveify.ui.component.MiniPlayer
 import com.beyondheavven.waveify.ui.screen.home.HomeScreen
 import com.beyondheavven.waveify.ui.screen.library.LibraryScreen
 import com.beyondheavven.waveify.ui.component.NavigationBar
 import com.beyondheavven.waveify.ui.component.NavigationItem
+import com.beyondheavven.waveify.ui.component.PlayerModal
 import com.beyondheavven.waveify.ui.screen.profile.ProfileScreen
 import com.beyondheavven.waveify.ui.theme.WaveifyTheme
 
@@ -28,13 +31,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             WaveifyTheme {
                 var currentTab by remember { mutableStateOf(NavigationItem.HOME) }
+                var isFullPlayerVisible by remember { mutableStateOf(false) }
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        NavigationBar(
-                            selectedItem = currentTab,
-                            onItemSelected = { currentTab = it},
-                            Modifier.padding(20.dp)
-                        )
+                        Column{
+                            MiniPlayer(
+                                onClick = { isFullPlayerVisible = true}
+                            )
+                            NavigationBar(
+                                selectedItem = currentTab,
+                                onItemSelected = { currentTab = it}
+                            )
+                        }
                     }
                 ) { innerPadding ->
                     when (currentTab) {
@@ -43,6 +51,12 @@ class MainActivity : ComponentActivity() {
                         NavigationItem.LIBRARY -> LibraryScreen(innerPadding)
                         else -> HomeScreen(innerPadding)
                     }
+                }
+
+                if (isFullPlayerVisible) {
+                    PlayerModal (
+                        onDismiss = {isFullPlayerVisible = false}
+                    )
                 }
             }
         }

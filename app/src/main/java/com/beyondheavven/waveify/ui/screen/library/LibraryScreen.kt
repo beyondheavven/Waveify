@@ -40,6 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.beyondheavven.waveify.data.model.TrackSource
 import com.beyondheavven.waveify.player.soundcloud.SoundCloudPlayerManager
 import com.beyondheavven.waveify.player.spotify.SpotifyPlayerManager
+import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
 import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.TextMuted
 import com.beyondheavven.waveify.ui.theme.TextPrimary
@@ -170,6 +171,7 @@ fun LibraryScreen(
                                         TrackItem(
                                             track = track,
                                             onClick = {
+                                                WaveifyPlayer.play(track, tracks, context)
                                                 when (track.source) {
                                                     TrackSource.SPOTIFY -> {
                                                         SoundCloudPlayerManager.pause()

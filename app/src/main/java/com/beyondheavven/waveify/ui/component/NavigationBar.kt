@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -54,7 +55,7 @@ enum class NavigationItem(
 fun NavigationBar(
     selectedItem: NavigationItem,
     onItemSelected: (NavigationItem) -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ){
     Surface(
         modifier = modifier
@@ -62,7 +63,11 @@ fun NavigationBar(
         shape = RectangleShape,
         color = MaterialTheme.colorScheme.surface
     ) {
-        Column {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+        ) {
             HorizontalDivider(
                 thickness = 0.5.dp,
                 color = Color.White.copy(alpha = 0.08f)
