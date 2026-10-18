@@ -58,6 +58,15 @@ object WaveifyPlayer {
         startProgressTicker()
     }
 
+    fun togglePlayPause() {
+        val track = currentTrack ?: return
+        if (isPlaying) {
+            pause()
+        } else {
+            resume()
+        }
+    }
+
     fun pause() {
         when (currentTrack?.source) {
             TrackSource.SPOTIFY -> SpotifyPlayerManager.pause()
@@ -81,6 +90,14 @@ object WaveifyPlayer {
         val currentIndex = currentPlaylist.indexOfFirst { it.id == currentTrack?.id }
         if (currentIndex != -1 && currentIndex < currentPlaylist.size - 1) {
             play(currentPlaylist[currentIndex + 1], currentPlaylist, context)
+        }
+    }
+
+    fun previous(context: Context) {
+        if (currentPlaylist.isEmpty()) return
+        val currentIndex = currentPlaylist.indexOfFirst { it.id == currentTrack?.id }
+        if (currentIndex > 0) {
+            play(currentPlaylist[currentIndex - 1], currentPlaylist, context)
         }
     }
 
