@@ -28,7 +28,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.beyondheavven.waveify.ascii.AsciiTransformation
+import com.beyondheavven.waveify.ui.ascii.AsciiTransformation
+import com.beyondheavven.waveify.ui.ascii.CoverSize
+import com.beyondheavven.waveify.ui.ascii.WaveifyCover
 
 @Composable
 fun TrackItem(
@@ -43,20 +45,10 @@ fun TrackItem(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ){
-        val context = LocalContext.current
-        AsyncImage(
-            model = remember(track.coverUrl) {
-                ImageRequest.Builder(context)
-                    .data(track.coverUrl)
-                    .transformations(AsciiTransformation(columns = 32))
-                    .crossfade(true)
-                    .build()
-            },
-            contentDescription = "Cover for ${track.title}",
-            modifier = Modifier
-                .size(56.dp)
-                .clip(RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
+        WaveifyCover(
+            coverUrl = track.coverUrl,
+            size = CoverSize.MEDIUM,
+            modifier = Modifier.size(56.dp)
         )
 
         Spacer(modifier = Modifier.width(12.dp))

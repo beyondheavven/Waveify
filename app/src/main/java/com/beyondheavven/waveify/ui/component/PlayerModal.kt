@@ -43,8 +43,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.beyondheavven.waveify.ascii.AsciiTransformation
+import com.beyondheavven.waveify.ui.ascii.AsciiTransformation
 import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
+import com.beyondheavven.waveify.ui.ascii.CoverSize
+import com.beyondheavven.waveify.ui.ascii.WaveifyCover
 import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.DarkSurface
 import com.beyondheavven.waveify.ui.theme.TextPrimary
@@ -93,17 +95,10 @@ fun PlayerModal(
                     .clip(RoundedCornerShape(24.dp))
                     .background(DarkSurface)
             ) {
-                val context = LocalContext.current
-                AsyncImage(
-                    model = remember(track.coverUrl) {
-                        ImageRequest.Builder(context)
-                            .data(track.coverUrl)
-                            .transformations(AsciiTransformation(columns = 64))
-                            .crossfade(true)
-                            .build()
-                    },
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
+                WaveifyCover(
+                    coverUrl = track.coverUrl,
+                    size = CoverSize.LARGE,
+                    shape = RoundedCornerShape(24.dp),
                     modifier = Modifier.fillMaxSize()
                 )
             }
