@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.ui.ascii
+package com.beyondheavven.waveify.ui.cover
 
 import androidx.compose.ui.graphics.Color
 import com.beyondheavven.waveify.ui.theme.StatusSuccess
