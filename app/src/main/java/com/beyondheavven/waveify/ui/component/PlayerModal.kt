@@ -30,6 +30,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,7 +42,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.beyondheavven.waveify.ui.ascii.AsciiTransformation
 import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
+import com.beyondheavven.waveify.ui.ascii.CoverSize
+import com.beyondheavven.waveify.ui.ascii.WaveifyCover
 import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.DarkSurface
 import com.beyondheavven.waveify.ui.theme.TextPrimary
@@ -90,10 +95,10 @@ fun PlayerModal(
                     .clip(RoundedCornerShape(24.dp))
                     .background(DarkSurface)
             ) {
-                AsyncImage(
-                    model = track.coverUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
+                WaveifyCover(
+                    coverUrl = track.coverUrl,
+                    size = CoverSize.LARGE,
+                    shape = RoundedCornerShape(24.dp),
                     modifier = Modifier.fillMaxSize()
                 )
             }

@@ -45,10 +45,10 @@ import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.TextMuted
 import com.beyondheavven.waveify.ui.theme.TextPrimary
 import com.beyondheavven.waveify.ui.theme.TextSecondary
-import com.beyondheavven.waveify.ui.component.NotificationBanner
-import com.beyondheavven.waveify.ui.component.NotificationState
-import com.beyondheavven.waveify.ui.component.TrackItem
-import com.beyondheavven.waveify.ui.component.rememberNotificationController
+import com.beyondheavven.waveify.ui.screen.notification.NotificationBanner
+import com.beyondheavven.waveify.ui.screen.notification.NotificationState
+import com.beyondheavven.waveify.data.model.TrackItem
+import com.beyondheavven.waveify.ui.screen.notification.rememberNotificationController
 import com.beyondheavven.waveify.ui.screen.library.components.LibraryFilterChip
 import com.beyondheavven.waveify.ui.screen.library.components.LibrarySearchBar
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
