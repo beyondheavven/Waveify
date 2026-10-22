@@ -1,5 +1,6 @@
 package com.beyondheavven.waveify.ui.screen.home.card
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -45,6 +46,7 @@ fun FavouriteTracksCard(
     isLoggedIn: Boolean = false,
     onClick: () -> Unit,
     onPlayClick: () -> Unit,
+    @SuppressLint("ModifierParameter")
     modifier: Modifier = Modifier
 ){
     val gradientBrush = Brush.horizontalGradient(

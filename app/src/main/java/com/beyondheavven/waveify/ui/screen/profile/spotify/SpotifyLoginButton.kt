@@ -14,8 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import com.beyondheavven.waveify.BuildConfig
-import com.beyondheavven.waveify.ui.component.NotificationController
-import com.beyondheavven.waveify.ui.component.NotificationState
+import com.beyondheavven.waveify.ui.screen.notification.NotificationController
+import com.beyondheavven.waveify.ui.screen.notification.NotificationState
 import com.beyondheavven.waveify.ui.theme.WaveifyRedDark
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest

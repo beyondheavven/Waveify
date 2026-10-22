@@ -5,8 +5,6 @@ import com.beyondheavven.waveify.data.model.toTrackUiModel
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import com.beyondheavven.waveify.ui.screen.library.LibraryFilter
-import com.spotify.protocol.types.Track
-import kotlin.collections.plusAssign
 
 class LibraryRepository(
 

@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.ui.component
+package com.beyondheavven.waveify.ui.screen.notification
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
