@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.ui.ascii
+package com.beyondheavven.waveify.ui.cover
 
 import android.content.Context
 import android.content.SharedPreferences

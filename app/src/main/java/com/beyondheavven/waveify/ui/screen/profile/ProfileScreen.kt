@@ -1,6 +1,5 @@
 package com.beyondheavven.waveify.ui.screen.profile
 
-import android.widget.Space
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -44,8 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
-import com.beyondheavven.waveify.ui.ascii.AsciiColorMode
-import com.beyondheavven.waveify.ui.ascii.AsciiSettings
+import com.beyondheavven.waveify.ui.cover.AsciiColorMode
+import com.beyondheavven.waveify.ui.cover.AsciiSettings
 import com.beyondheavven.waveify.ui.screen.profile.spotify.SpotifyLoginButton
 import com.beyondheavven.waveify.ui.screen.notification.rememberNotificationController
 import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated

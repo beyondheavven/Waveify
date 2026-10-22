@@ -1,4 +1,4 @@
-package com.beyondheavven.waveify.ui.ascii
+package com.beyondheavven.waveify.ui.cover
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
