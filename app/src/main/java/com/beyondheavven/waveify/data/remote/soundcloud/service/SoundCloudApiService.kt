@@ -1,5 +1,6 @@
 package com.beyondheavven.waveify.data.remote.soundcloud.service
 
+import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudChartsResponse
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudLikesResponse
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudStreamResponse
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudUserModel
@@ -39,5 +40,16 @@ interface SoundCloudApiService {
         url: String
     ): SoundCloudStreamResponse
 
+    @GET("charts")
+    suspend fun getTrendingCharts(
 
+        @Query("kind")
+        kind: String = "top",
+
+        @Query("genre")
+        genre: String = "soundcloud:genres:all-music",
+
+        @Query("limit")
+        limit: Int = 25
+    ): SoundCloudChartsResponse
 }

@@ -1,5 +1,7 @@
 package com.beyondheavven.waveify.data.remote.spotify.service
 
+import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyNewReleasesResponse
+import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyRecommendationsResponse
 import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySavedTracksResponse
 import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySearchTracksResponse
 import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyTokenResponse
@@ -38,5 +40,20 @@ interface SpotifyApiService {
         @Url
         url: String
     ): SpotifySavedTracksResponse
+
+    @GET("v1/recommendations")
+    suspend fun getRecommendations(
+        @Query("seed_genres")
+        seedGenres: String = "pop,rock,electronic,hip-hop",
+
+        @Query("limit")
+        limit: Int = 20
+    ): SpotifyRecommendationsResponse
+
+    @GET("v1/browse/new-releases")
+    suspend fun getNewReleases(
+        @Query("limit")
+        limit: Int = 20
+    ): SpotifyNewReleasesResponse
 
 }
