@@ -131,6 +131,7 @@ fun ProfileScreen(padding: PaddingValues) {
                     OutlinedButton(
                         onClick = {
                             SpotifyClient.accessToken = null
+                            SpotifyClient.refreshToken = null
                             isSpotifyConnected = false
                         },
                         modifier = Modifier.fillMaxWidth()

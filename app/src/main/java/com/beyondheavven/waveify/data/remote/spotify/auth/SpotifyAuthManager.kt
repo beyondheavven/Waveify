@@ -46,7 +46,7 @@ object SpotifyAuthManager {
         val authUri = Uri.parse("https://accounts.spotify.com/authorize").buildUpon()
             .appendQueryParameter("client_id", BuildConfig.SPOTIFY_CLIENT_ID)
             .appendQueryParameter("response_type", "code")
-            .appendQueryParameter("redirect_uri", "waveify://callback")
+            .appendQueryParameter("redirect_uri", BuildConfig.SPOTIFY_REDIRECT_URI)
             .appendQueryParameter("scope", scopes)
             .appendQueryParameter("show_dialog", "true")
             .build()
