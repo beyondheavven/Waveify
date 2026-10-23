@@ -3,29 +3,27 @@ package com.beyondheavven.waveify.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // Accent Colors (Red)
-val WaveifyRed = Color(0xFFFF2A54)
-val WaveifyRedDark = Color(0xFFC2183C)
-val WaveifyRedLight = Color(0xFFFF5C7D)
+val WaveifyRed = Color(0xFFE50914)
+val WaveifyRedDark = Color(0xFF991B1B)
+val WaveifyRedLight = Color(0xFFEF4444)
+
+val RedSubtleBg = Color(0xFF260D0F)
 
 // Dark Theme Background & Surfaces
-val DarkBackground = Color(0xFF0D0D11)
-val DarkSurface = Color(0xFF121214)
+val DarkBackground = Color(0xFF0C0C0C)
+val DarkSurface = Color(0xFF141414)
 
-val DarkSurfaceElevated = Color(0xFF1E1E26)
-val DarkSurfaceVariant = Color(0xFF282833)
+val DarkSurfaceElevated = Color(0xFF1C1C1E)
+val DarkSurfaceVariant = Color(0xFF262628)
+
+val DividerColor = Color(0xFF27272A)
 
 // Text & Icons
 val TextPrimary = Color(0xFFFFFFFF)
-val TextSecondary = Color(0xFFA2A2AC)
-val TextMuted = Color(0xFF6B6B76)
-
-// Functional & Overlay
-val RedGradientStart = Color(0xFFFF2A54)
-val RedGradientEnd = Color(0xFF8B0021)
-val PlayerBackground = Color(0xFF191922)
-val DividerColor = Color(0xFF23232E)
+val TextSecondary = Color(0xFFA1A1AA)
+val TextMuted = Color(0xFF71717A)
 
 //Status Colors
-val StatusSuccess = Color(0xFF00E676)
-val StatusSuccessBg = Color(0xFF102619)
-val StatusErrorBg = Color(0xFF261014)
+val StatusSuccess = Color(0xFF22C55E)
+val StatusSuccessBg = Color(0xFF0F2415)
+val StatusErrorBg = Color(0xFF260D0F)
