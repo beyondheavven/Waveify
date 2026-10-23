@@ -53,8 +53,6 @@ import com.beyondheavven.waveify.ui.theme.DividerColor
 import com.beyondheavven.waveify.ui.theme.TextMuted
 import com.beyondheavven.waveify.ui.theme.TextPrimary
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
-import com.beyondheavven.waveify.ui.theme.WaveifyRedDark
-import com.beyondheavven.waveify.ui.theme.WaveifyRedLight
 import kotlinx.coroutines.launch
 
 @Composable
@@ -336,7 +334,7 @@ fun ProfileScreen(padding: PaddingValues) {
                             )
                             .border(
                                 width = 1.dp,
-                                color = if (isOriginalSelected) WaveifyRed else DividerColor,
+                                color = if (isOriginalSelected) Color.White else DividerColor,
                                 shape = RoundedCornerShape(10.dp)
                             )
                             .clickable {
@@ -360,11 +358,11 @@ fun ProfileScreen(padding: PaddingValues) {
                                 .weight(1f)
                                 .clip(RoundedCornerShape(10.dp))
                                 .background(
-                                    if (isSelected) WaveifyRed.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f)
+                                    if (isSelected) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.04f)
                                 )
                                 .border(
                                     width = 1.dp,
-                                    color = if (isSelected) WaveifyRed else Color.Transparent,
+                                    color = if (isSelected) Color.White else DividerColor,
                                     shape = RoundedCornerShape(10.dp)
                                 )
                                 .clickable{
@@ -377,8 +375,15 @@ fun ProfileScreen(padding: PaddingValues) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Box(
                                     modifier = Modifier
-                                        .size(6.dp)
-                                        .background(mode.indicatorColor, CircleShape)
+                                        .size(7.dp)
+                                        .clip(CircleShape)
+                                        .then(
+                                            if (mode.indicatorBrush != null) {
+                                                Modifier.background(mode.indicatorBrush)
+                                            } else {
+                                                Modifier.background(mode.indicatorColor ?: TextPrimary)
+                                            }
+                                        )
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
