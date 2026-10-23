@@ -1,5 +1,6 @@
 package com.beyondheavven.waveify.ui.screen.home
 
+import android.util.Log
 import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.data.model.toTrackUiModel
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
@@ -14,7 +15,7 @@ object HomeRepository{
             val response = SpotifyClient.api.getRecommendations()
             response.tracks.map { it.toTrackUiModel() }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("HomeRepository", "Spotify error : ${e.message}", e)
             emptyList()
         }
 
@@ -25,7 +26,7 @@ object HomeRepository{
             val response = SoundCloudClient.api.getTrendingCharts()
             response.collection.map { it.track.toTrackUiModel() }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("HomeRepository", "SoundCloud charts error : ${e.message}", e)
             emptyList()
         }
     }
