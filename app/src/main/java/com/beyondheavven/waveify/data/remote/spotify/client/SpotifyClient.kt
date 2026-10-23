@@ -14,10 +14,13 @@ object SpotifyClient {
     private const val BASE_URL = BuildConfig.SPOTIFY_BASE_URL
     private const val ACCOUNTS_URL = BuildConfig.ACCOUNTS_BASE_URL
     private const val CLIENT_SECRET = BuildConfig.SPOTIFY_SECRET
-
     private const val CLIENT_ID = BuildConfig.SPOTIFY_CLIENT_ID
 
     var accessToken: String? = null
+    var refreshToken: String? = null
+
+    val isAuthorized: Boolean
+        get() = !accessToken.isNullOrEmpty()
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {
@@ -65,6 +68,7 @@ object SpotifyClient {
                 redirectUri = BuildConfig.SPOTIFY_REDIRECT_URI
             )
             accessToken = response.accessToken
+            refreshToken = response.refreshToken
             true
         } catch (e: Exception) {
             e.printStackTrace()
