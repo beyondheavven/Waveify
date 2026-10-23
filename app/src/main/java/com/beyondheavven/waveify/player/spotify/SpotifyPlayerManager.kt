@@ -1,22 +1,23 @@
 package com.beyondheavven.waveify.player.spotify
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.beyondheavven.waveify.BuildConfig
-import com.spotify.android.appremote.api.ConnectionParams
-import com.spotify.android.appremote.api.Connector
-import com.spotify.android.appremote.api.SpotifyAppRemote
-import com.spotify.protocol.types.PlayerState
+import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
+import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyPlayRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 object SpotifyPlayerManager {
 
     private const val TAG = "SpotifyPlayerManager"
 
-    private var spotifyAppRemote: SpotifyAppRemote? = null
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     var isConnected by mutableStateOf(false)
         private set
@@ -33,64 +34,98 @@ object SpotifyPlayerManager {
     var currentTrackUri by mutableStateOf<String?>(null)
         private set
 
-    fun connect(context: Context, onConnected: (()-> Unit)? = null) {
-        if (isConnected && spotifyAppRemote != null){
-            onConnected?.invoke()
-            return
-        }
-
-        val connectionParams = ConnectionParams.Builder(
-            BuildConfig.SPOTIFY_CLIENT_ID)
-            .setRedirectUri(BuildConfig.SPOTIFY_REDIRECT_URI)
-            .showAuthView(false)
-            .build()
-
-        SpotifyAppRemote.connect(
-            context.applicationContext,
-            connectionParams,
-            object : Connector.ConnectionListener {
-                override fun onConnected(appRemote: SpotifyAppRemote) {
-                    spotifyAppRemote = appRemote
-                    isConnected = true
-                    Log.d(TAG, "Connected to Spotify App Remote successfully!")
-                    subscribeToPlayerState()
-                    onConnected?.invoke()
-                }
-
-                override fun onFailure(throwable: Throwable) {
-                    isConnected = false
-                    spotifyAppRemote = null
-                    Log.e(TAG, "Failed to connect to Spotify App Remote: ${throwable.message}", throwable)
-                }
-            }
-
-        )
-
-    }
-
-    fun play(trackId: String, context: Context){
+    fun play(trackId: String, context: Context? = null){
         val uri = if (trackId.startsWith("spotify:track:")){
             trackId
         } else {
             "spotify:track:$trackId"
         }
+        currentTrackUri = uri
 
-        if (isConnected && spotifyAppRemote != null) {
-            spotifyAppRemote?.playerApi?.play(uri)
-        } else {
-            connect(context) {
-                spotifyAppRemote?.playerApi?.play(uri)
+        scope.launch {
+            try {
+                val response = SpotifyClient.api.playTrack(
+                    request = SpotifyPlayRequest(uris = listOf(uri))
+                )
+
+                if(response.isSuccessful) {
+                    isPlaying = true
+                    isConnected = true
+                    Log.d(TAG, "Started streaming track: $uri")
+                } else if (response.code() == 404) {
+                    Log.w(TAG, "No active devices.")
+                    handleNoActiveDevice(uri, context)
+                } else {
+                    Log.e(TAG, "Error launching HTTP ${response.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception while playTrack", e)
             }
         }
+    }
 
+    private suspend fun handleNoActiveDevice(uri: String, context: Context?) {
+        try {
+            val devicesResponse = SpotifyClient.api.getAvailableDevices()
+            val availableDevices = devicesResponse.devices
+
+            val targetDevice = availableDevices.firstOrNull() { it.isActive } ?: availableDevices.firstOrNull()
+
+            if (targetDevice != null) {
+                Log.d(TAG, "Found device: ${targetDevice.name} (${targetDevice.id})")
+                val retryResponse = SpotifyClient.api.playTrack(
+                    deviceId = targetDevice.id,
+                    request = SpotifyPlayRequest(uris = listOf(uri))
+                )
+
+                if(retryResponse.isSuccessful) {
+                    isPlaying = true
+                    isConnected = true
+                    Log.d(TAG, "Playing on ${targetDevice.name}")
+                }
+            } else {
+                Log.w(TAG, "No available Spotify devices")
+                if (context != null) {
+                    val launchIntent = context.packageManager.getLaunchIntentForPackage("com.spotify.music")
+                    if (launchIntent != null) {
+                        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(launchIntent)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error while getting devices", e)
+        }
     }
 
     fun pause(){
-        spotifyAppRemote?.playerApi?.pause()
+        scope.launch {
+            try {
+                val response = SpotifyClient.api.pausePlayback()
+                if (response.isSuccessful) {
+                    isPlaying = false
+                    Log.d(TAG, "Paused")
+                } else {
+                    Log.e(TAG, "Error occurred ${response.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error when calling pause ${e.message}")
+            }
+        }
     }
 
     fun resume(){
-        spotifyAppRemote?.playerApi?.resume()
+        scope.launch {
+            try {
+                val response = SpotifyClient.api.playTrack(request = SpotifyPlayRequest())
+                if (response.isSuccessful) {
+                    isPlaying = true
+                    Log.d(TAG, "Resume")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error when calling resume", e)
+            }
+        }
     }
 
     fun togglePlayPause(){
@@ -103,24 +138,7 @@ object SpotifyPlayerManager {
     }
 
     fun disconnect(){
-        spotifyAppRemote?.let {
-            SpotifyAppRemote.disconnect(it)
-            spotifyAppRemote = null
-            isConnected = false
-            isPlaying = false
-        }
-    }
-
-    private fun subscribeToPlayerState() {
-        spotifyAppRemote?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState: PlayerState ->
-            isPlaying = !playerState.isPaused
-            val track = playerState.track
-            if (track != null) {
-                currentTrackTitle = track.name
-                currentTrackArtist = track.artist.name
-                currentTrackUri = track.uri
-            }
-        }
-
+        isPlaying = false
+        isConnected = false
     }
 }

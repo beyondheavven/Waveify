@@ -24,6 +24,6 @@ val TextSecondary = Color(0xFFA1A1AA)
 val TextMuted = Color(0xFF71717A)
 
 //Status Colors
-val StatusSuccess = Color(0xFF22C55E)
+val StatusSuccess = Color(0xFF1E6F3C)
 val StatusSuccessBg = Color(0xFF0F2415)
 val StatusErrorBg = Color(0xFF260D0F)

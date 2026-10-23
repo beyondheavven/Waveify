@@ -1,9 +1,9 @@
 package com.beyondheavven.waveify.data.remote.spotify.service
 
-import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyNewReleasesResponse
+import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyDevicesResponse
+import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyPlayRequest
 import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyRecommendationsResponse
 import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySavedTracksResponse
-import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySearchTracksResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -12,19 +12,6 @@ import retrofit2.http.Query
 import retrofit2.http.Url
 
 interface SpotifyApiService {
-
-    @GET("v1/search")
-    suspend fun searchTracks(
-        @Query("q")
-        query: String,
-
-        @Query("type")
-        type: String = "track",
-
-        @Query("limit")
-        limit: Int = 20
-    ): SpotifySearchTracksResponse
-
     @GET("v1/me/tracks")
     suspend fun getSavedTracks(
         @Query("limit")
@@ -49,10 +36,21 @@ interface SpotifyApiService {
         limit: Int = 20
     ): SpotifyRecommendationsResponse
 
-    @GET("v1/browse/new-releases")
-    suspend fun getNewReleases(
-        @Query("limit")
-        limit: Int = 20
-    ): SpotifyNewReleasesResponse
+    @PUT("v1/me/player/play")
+    suspend fun playTrack(
+        @Query("device_id")
+        deviceId: String? = null,
 
+        @Body
+        request: SpotifyPlayRequest
+    ): Response<Unit>
+
+    @PUT("v1/me/player/pause")
+    suspend fun pausePlayback(
+        @Query("device_id")
+        deviceId: String? = null,
+    ): Response<Unit>
+
+    @GET("v1/me/player/devices")
+    suspend fun getAvailableDevices(): SpotifyDevicesResponse
 }
