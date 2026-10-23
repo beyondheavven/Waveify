@@ -34,6 +34,7 @@ import com.beyondheavven.waveify.ui.cover.WaveifyCover
 import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
 import com.beyondheavven.waveify.ui.theme.TextMuted
 import com.beyondheavven.waveify.ui.theme.TextPrimary
+import com.beyondheavven.waveify.ui.theme.WaveifyRed
 import com.beyondheavven.waveify.ui.theme.WaveifyRedDark
 
 @Composable
@@ -96,7 +97,7 @@ fun MiniPlayer(
                         Icon(
                             imageVector = if (WaveifyPlayer.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = "Play/Pause",
-                            tint = WaveifyRedDark,
+                            tint = WaveifyRed,
                             modifier = Modifier.size(30.dp)
                         )
                     }

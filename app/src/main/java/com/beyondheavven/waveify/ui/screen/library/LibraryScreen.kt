@@ -37,9 +37,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.beyondheavven.waveify.data.model.TrackSource
-import com.beyondheavven.waveify.player.soundcloud.SoundCloudPlayerManager
-import com.beyondheavven.waveify.player.spotify.SpotifyPlayerManager
 import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
 import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.TextMuted
@@ -172,16 +169,6 @@ fun LibraryScreen(
                                             track = track,
                                             onClick = {
                                                 WaveifyPlayer.play(track, tracks, context)
-                                                when (track.source) {
-                                                    TrackSource.SPOTIFY -> {
-                                                        SoundCloudPlayerManager.pause()
-                                                        SpotifyPlayerManager.play(track.id, context)
-                                                    }
-                                                    TrackSource.SOUNDCLOUD -> {
-                                                        SpotifyPlayerManager.pause()
-                                                        SoundCloudPlayerManager.play(track, context)
-                                                    }
-                                                }
                                             }
                                         )
                                     }

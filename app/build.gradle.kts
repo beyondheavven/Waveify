@@ -69,7 +69,6 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     implementation(libs.google.gson)
-    implementation(libs.android.auth)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)

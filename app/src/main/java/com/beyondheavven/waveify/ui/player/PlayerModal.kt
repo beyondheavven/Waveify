@@ -44,6 +44,7 @@ import com.beyondheavven.waveify.ui.cover.CoverSize
 import com.beyondheavven.waveify.ui.cover.WaveifyCover
 import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.DarkSurface
+import com.beyondheavven.waveify.ui.theme.DividerColor
 import com.beyondheavven.waveify.ui.theme.TextPrimary
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
 
@@ -86,7 +87,7 @@ fun PlayerModal(
                 modifier = Modifier
                     .fillMaxWidth(0.85f)
                     .aspectRatio(1f)
-                    .shadow(elevation = 20.dp, shape = RoundedCornerShape(24.dp), spotColor = WaveifyRed)
+                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(24.dp), spotColor = WaveifyRed.copy(alpha = 0.35f))
                     .clip(RoundedCornerShape(24.dp))
                     .background(DarkSurface)
             ) {
@@ -125,7 +126,7 @@ fun PlayerModal(
                 colors = SliderDefaults.colors(
                     thumbColor = WaveifyRed,
                     activeTrackColor = WaveifyRed,
-                    inactiveTickColor = Color.White.copy(alpha = 0.15f)
+                    inactiveTickColor = DividerColor
                 ),
                 modifier = Modifier.fillMaxWidth()
             )

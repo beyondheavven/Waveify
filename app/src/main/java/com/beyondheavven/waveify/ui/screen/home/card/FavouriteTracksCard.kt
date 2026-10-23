@@ -34,10 +34,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
-import com.beyondheavven.waveify.ui.theme.RedGradientEnd
-import com.beyondheavven.waveify.ui.theme.RedGradientStart
 import com.beyondheavven.waveify.ui.theme.TextPrimary
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
+import com.beyondheavven.waveify.ui.theme.WaveifyRedDark
 
 
 @Composable
@@ -51,8 +50,8 @@ fun FavouriteTracksCard(
 ){
     val gradientBrush = Brush.horizontalGradient(
         colors = listOf(
-            RedGradientStart,
-            RedGradientEnd,
+            WaveifyRed,
+            WaveifyRedDark,
             DarkSurfaceElevated
         )
     )

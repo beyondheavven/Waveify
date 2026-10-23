@@ -4,11 +4,10 @@ import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyNewReleasesRe
 import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyRecommendationsResponse
 import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySavedTracksResponse
 import com.beyondheavven.waveify.data.remote.spotify.models.SpotifySearchTracksResponse
-import com.beyondheavven.waveify.data.remote.spotify.models.SpotifyTokenResponse
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
+import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Query
 import retrofit2.http.Url
 
