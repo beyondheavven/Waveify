@@ -2,7 +2,6 @@ package com.beyondheavven.waveify.data.remote.spotify.models
 
 import com.google.gson.annotations.SerializedName
 
-
 data class SpotifyTokenResponse(
 
     @SerializedName("access_token")
