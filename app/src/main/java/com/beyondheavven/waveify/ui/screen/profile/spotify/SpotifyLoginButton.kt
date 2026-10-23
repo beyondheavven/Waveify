@@ -1,6 +1,7 @@
 package com.beyondheavven.waveify.ui.screen.profile.spotify
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -9,9 +10,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.remote.spotify.auth.SpotifyAuthManager
 import com.beyondheavven.waveify.ui.screen.notification.NotificationController
 import com.beyondheavven.waveify.ui.screen.notification.NotificationState
+import com.beyondheavven.waveify.ui.theme.WaveifyRed
 import com.beyondheavven.waveify.ui.theme.WaveifyRedDark
 @Composable
 fun SpotifyLoginButton(
@@ -45,10 +49,14 @@ fun SpotifyLoginButton(
         onClick = {
             SpotifyAuthManager.startLogin(context)
         },
-        colors = ButtonDefaults.buttonColors(containerColor = WaveifyRedDark),
+        colors = ButtonDefaults.buttonColors(containerColor = WaveifyRed),
+        shape = RoundedCornerShape(12.dp),
         modifier = modifier.fillMaxWidth()
     ) {
-        Text("Connect profile", color = Color.White)
+        Text("Connect profile",
+            color = Color.White,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 
 }

@@ -48,6 +48,7 @@ import com.beyondheavven.waveify.ui.cover.AsciiSettings
 import com.beyondheavven.waveify.ui.screen.profile.spotify.SpotifyLoginButton
 import com.beyondheavven.waveify.ui.screen.notification.rememberNotificationController
 import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
+import com.beyondheavven.waveify.ui.theme.DarkSurfaceVariant
 import com.beyondheavven.waveify.ui.theme.DividerColor
 import com.beyondheavven.waveify.ui.theme.TextMuted
 import com.beyondheavven.waveify.ui.theme.TextPrimary
@@ -90,7 +91,7 @@ fun ProfileScreen(padding: PaddingValues) {
             shape = RoundedCornerShape(16.dp),
             border = BorderStroke(
                 1.dp,
-                if (isSpotifyConnected) WaveifyRed.copy(alpha = 0.4f) else DividerColor
+                DividerColor
             ),
             colors = CardDefaults.cardColors(
                 containerColor = DarkSurfaceElevated
@@ -107,7 +108,7 @@ fun ProfileScreen(padding: PaddingValues) {
                             modifier = Modifier
                                 .size(12.dp)
                                 .background(
-                                    if (isSpotifyConnected) WaveifyRedDark else TextMuted,
+                                    if (isSpotifyConnected) WaveifyRed else TextMuted,
                                     CircleShape
                                 )
                         )
@@ -115,13 +116,14 @@ fun ProfileScreen(padding: PaddingValues) {
                         Text(
                             text = "Spotify",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
                         )
                     }
                     Text(
                         text = if (isSpotifyConnected) "Connected" else "Not connected",
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (isSpotifyConnected) WaveifyRedLight else TextMuted
+                        color = if (isSpotifyConnected) TextPrimary else TextMuted
                     )
                 }
 
@@ -134,7 +136,8 @@ fun ProfileScreen(padding: PaddingValues) {
                             SpotifyClient.refreshToken = null
                             isSpotifyConnected = false
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        border = BorderStroke(1.dp, DividerColor)
                     ) {
                         Text("Disconnect profile", color = MaterialTheme.colorScheme.error)
                     }
@@ -154,8 +157,7 @@ fun ProfileScreen(padding: PaddingValues) {
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             border = BorderStroke(
-                1.dp,
-                if (isSoundCloudConnected) WaveifyRed.copy(alpha = 0.4f) else DividerColor
+                1.dp, DividerColor
             ),
             colors = CardDefaults.cardColors(
                 containerColor = DarkSurfaceElevated
@@ -175,20 +177,21 @@ fun ProfileScreen(padding: PaddingValues) {
                         Box(
                             modifier = Modifier
                                 .size(12.dp)
-                                .background(if (isSoundCloudConnected) WaveifyRedDark else TextMuted, CircleShape)
+                                .background(if (isSoundCloudConnected) WaveifyRed else TextMuted, CircleShape)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
                             text = "SoundCloud",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
                         )
                     }
 
                     Text(
                         text = if (isSoundCloudConnected) "Connected" else "Not connected",
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (isSoundCloudConnected) WaveifyRedLight else TextMuted
+                        color = if (isSoundCloudConnected) TextPrimary else TextMuted
                     )
                 }
 
@@ -256,7 +259,9 @@ fun ProfileScreen(padding: PaddingValues) {
                             }
                         },
                         enabled = !isSoundCloudLoading && soundCloudInput.isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(containerColor = WaveifyRedDark),
+                        colors = ButtonDefaults.buttonColors(containerColor = WaveifyRed,
+                            disabledContentColor = DarkSurfaceVariant
+                        ),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -327,11 +332,11 @@ fun ProfileScreen(padding: PaddingValues) {
                             .weight(1.1f)
                             .clip(RoundedCornerShape(10.dp))
                             .background(
-                                if (isOriginalSelected) WaveifyRed.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f)
+                                if (isOriginalSelected) Color.White.copy(alpha = 0.2f) else Color.Transparent
                             )
                             .border(
                                 width = 1.dp,
-                                color = if (isOriginalSelected) WaveifyRed else Color.Transparent,
+                                color = if (isOriginalSelected) WaveifyRed else DividerColor,
                                 shape = RoundedCornerShape(10.dp)
                             )
                             .clickable {

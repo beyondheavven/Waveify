@@ -37,6 +37,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.beyondheavven.waveify.ui.theme.TextMuted
+import com.beyondheavven.waveify.ui.theme.WaveifyRed
 
 
 enum class NavigationItem(
@@ -82,7 +84,7 @@ fun NavigationBar(
         ) {
             NavigationItem.entries.forEach { item ->
                 val isSelected = selectedItem == item
-                val itemColor = if (isSelected) Color.White else Color.Gray
+                val itemColor = if (isSelected) WaveifyRed else TextMuted
 
                 Column(
                     modifier = Modifier
