@@ -39,9 +39,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.beyondheavven.waveify.player.soundcloud.SoundCloudPlayerManager
 import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
 import com.beyondheavven.waveify.ui.cover.CoverSize
 import com.beyondheavven.waveify.ui.cover.WaveifyCover
+import com.beyondheavven.waveify.ui.oscilloscope.WaveifyOscilloscope
 import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.DarkSurface
 import com.beyondheavven.waveify.ui.theme.DividerColor
@@ -100,6 +102,17 @@ fun PlayerModal(
             }
 
             Spacer(modifier = Modifier.height(32.dp))
+
+            WaveifyOscilloscope(
+                source = WaveifyPlayer.currentTrack?.source,
+                isPlaying = WaveifyPlayer.isPlaying,
+                realWaveData = SoundCloudPlayerManager.currentWaveform,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
 
             Column(
                 modifier = Modifier

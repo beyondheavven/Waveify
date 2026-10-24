@@ -128,7 +128,7 @@ fun MiniPlayer(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(2.dp),
-                        color = WaveifyRedDark,
+                        color = Color.White,
                         trackColor = DarkSurfaceElevated.copy(alpha = 0.3f)
                     )
                 }
