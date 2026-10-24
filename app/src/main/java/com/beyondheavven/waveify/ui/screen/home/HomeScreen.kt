@@ -68,6 +68,8 @@ fun HomeScreen(
             modifier = Modifier.padding(horizontal = 20.dp)
         )
 
+        Spacer(modifier = Modifier.height(14.dp))
+
         if (uiState.isLoading) {
             Box(
                 modifier = Modifier
