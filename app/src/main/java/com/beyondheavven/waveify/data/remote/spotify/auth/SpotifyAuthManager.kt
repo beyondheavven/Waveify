@@ -23,6 +23,9 @@ object SpotifyAuthManager {
 
     private const val TAG = "SpotifyAuth"
 
+    var isAuthorized: Boolean = false
+        private set
+
     private val scope = CoroutineScope(Dispatchers.IO)
 
     sealed interface AuthEvent {
@@ -63,6 +66,7 @@ object SpotifyAuthManager {
                 val success = SpotifyClient.exchangeCodeForToken(code)
                 if (success) {
                     Log.d(TAG, "Authorization is successful! Access token obtained")
+                    isAuthorized = true
                     _authEvents.emit(AuthEvent.Success)
                 } else {
                     Log.e(TAG, "Failed to exchange code for token.")

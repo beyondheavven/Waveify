@@ -46,7 +46,10 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     when (currentTab) {
-                        NavigationItem.HOME -> HomeScreen(innerPadding)
+                        NavigationItem.HOME -> HomeScreen(
+                            innerPadding,
+                            onNavigateToLibrary = { currentTab = NavigationItem.LIBRARY }
+                            )
                         NavigationItem.PROFILE -> ProfileScreen(innerPadding)
                         NavigationItem.LIBRARY -> LibraryScreen(innerPadding)
                         else -> HomeScreen(innerPadding)

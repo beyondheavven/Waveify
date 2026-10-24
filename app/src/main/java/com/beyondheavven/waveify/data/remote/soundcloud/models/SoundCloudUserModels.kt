@@ -10,7 +10,7 @@ data class SoundCloudUserModel(
     @SerializedName("username")
     val username: String,
 
-    @SerializedName("avatarUrl")
+    @SerializedName("avatar_url")
     val avatarUrl: String,
 
     @SerializedName("permalink_url")

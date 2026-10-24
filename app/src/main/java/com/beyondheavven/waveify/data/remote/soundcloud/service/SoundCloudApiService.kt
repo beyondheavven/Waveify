@@ -2,6 +2,7 @@ package com.beyondheavven.waveify.data.remote.soundcloud.service
 
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudChartsResponse
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudLikesResponse
+import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudSearchTracksResponse
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudStreamResponse
 import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudUserModel
 import retrofit2.http.GET
@@ -35,7 +36,6 @@ interface SoundCloudApiService {
 
     @GET
     suspend fun getStreamUrl(
-
         @Url
         url: String
     ): SoundCloudStreamResponse
@@ -44,12 +44,22 @@ interface SoundCloudApiService {
     suspend fun getTrendingCharts(
 
         @Query("kind")
-        kind: String = "top",
+        kind: String = "trending",
 
         @Query("genre")
         genre: String = "soundcloud:genres:all-music",
 
         @Query("limit")
-        limit: Int = 25
+        limit: Int = 20
     ): SoundCloudChartsResponse
+
+    @GET("search/tracks")
+    suspend fun searchTracks(
+
+        @Query("q")
+        query: String,
+
+        @Query("limit")
+        limit: Int = 20
+    ): SoundCloudSearchTracksResponse
 }

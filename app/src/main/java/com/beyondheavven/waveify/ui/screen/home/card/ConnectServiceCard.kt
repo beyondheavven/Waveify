@@ -36,7 +36,10 @@ fun ConnectServiceCard(
     modifier: Modifier = Modifier
 ){
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(72.dp)
+            .clip(RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, DividerColor),
         colors = CardDefaults.cardColors(containerColor = DarkSurfaceElevated)
@@ -45,19 +48,19 @@ fun ConnectServiceCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .background(serviceColor.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ){
                 Box(
                     modifier = Modifier
-                        .size(14.dp)
+                        .size(16.dp)
                         .background(serviceColor, CircleShape)
                 )
             }

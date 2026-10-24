@@ -1,6 +1,7 @@
 package com.beyondheavven.waveify.ui.screen.home.card
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
+import com.beyondheavven.waveify.ui.theme.DividerColor
+import com.beyondheavven.waveify.ui.theme.TextMuted
 import com.beyondheavven.waveify.ui.theme.TextPrimary
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
 import com.beyondheavven.waveify.ui.theme.WaveifyRedDark
@@ -45,53 +48,40 @@ fun FavouriteTracksCard(
     isLoggedIn: Boolean = false,
     onClick: () -> Unit,
     onPlayClick: () -> Unit,
-    @SuppressLint("ModifierParameter")
     modifier: Modifier = Modifier
 ){
-    val gradientBrush = Brush.horizontalGradient(
-        colors = listOf(
-            WaveifyRed,
-            WaveifyRedDark,
-            DarkSurfaceElevated
-        )
-    )
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(96.dp)
-            .shadow(elevation = 12.dp, shape = RoundedCornerShape(18.dp), spotColor = WaveifyRed)
-            .clip(RoundedCornerShape(18.dp))
+            .height(72.dp)
+            .clip(RoundedCornerShape(16.dp))
             .clickable { onClick()},
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, DividerColor),
+        colors = CardDefaults.cardColors(containerColor = DarkSurfaceElevated)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(gradientBrush)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
             Row(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Color.White.copy(alpha = 0.2f)),
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(WaveifyRed.copy(alpha = 0.12f)),
                     contentAlignment = Alignment.Center
                 ){
                     Icon(
                         imageVector = Icons.Default.Favorite,
                         contentDescription = "Favourite tracks",
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
+                        tint = WaveifyRed,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(14.dp))
 
                 Column(
                     modifier = Modifier.weight(1f)
@@ -102,24 +92,24 @@ fun FavouriteTracksCard(
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = if (isLoggedIn) {
-                            if (trackCount > 0) "$trackCount tracks" else "Synchronizing"
+                            if (trackCount > 0) "$trackCount tracks" else "Spotify Library"
                         } else {
-                            "Please log in Spotify"
+                            "Connect to view"
                         },
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextPrimary.copy(alpha = 0.8f)
+                        color = TextMuted
                     )
                 }
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(10.dp))
 
                 IconButton(
                     onClick = onPlayClick,
                     modifier = Modifier
-                        .size(46.dp)
+                        .size(38.dp)
                         .clip(CircleShape)
                         .background(Color.White)
                 ) {
@@ -127,11 +117,10 @@ fun FavouriteTracksCard(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = "Listen all",
                         tint = Color.Black,
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(22.dp)
                     )
                 }
             }
         }
-    }
 
 }
