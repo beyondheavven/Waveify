@@ -5,7 +5,6 @@ import com.beyondheavven.waveify.data.model.HomeItemType
 import com.beyondheavven.waveify.data.model.HomeItemUiModel
 import com.beyondheavven.waveify.data.model.TrackSource
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
-import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudGenre
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -56,12 +55,7 @@ object HomeRepository{
 
     suspend fun getSoundCloudTrending(limit: Int = 20): List<HomeItemUiModel> = withContext(Dispatchers.IO) {
         try {
-            val response = SoundCloudClient.api.getTrendingCharts(
-                kind = "trending",
-                genre = SoundCloudGenre.ALL_MUSIC.queryValue,
-                limit = limit
-            )
-
+            val response = SoundCloudClient.api.getTrendingCharts(limit = limit)
             response.collection.mapNotNull { item ->
                 val track = item.track ?: return@mapNotNull null
                 HomeItemUiModel(
@@ -79,19 +73,13 @@ object HomeRepository{
         }
     }
 
-    suspend fun getSoundCloudGenreChart(
-        genre: SoundCloudGenre = SoundCloudGenre.HIP_HOP,
-        limit: Int = 20
-    ): List<HomeItemUiModel> = withContext(Dispatchers.IO) {
+    suspend fun getSoundCloudHipHop(limit: Int = 20): List<HomeItemUiModel> = withContext(Dispatchers.IO) {
         try {
-            val response = SoundCloudClient.api.getGenreCharts(
-                kind = "top",
-                genre = genre.queryValue,
+            val response = SoundCloudClient.api.searchTracks(
+                query = "Hip-Hop",
                 limit = limit
             )
-
-            response.collection.mapNotNull { item ->
-                val track = item.track ?: return@mapNotNull null
+            response.collection.map { track ->
                 HomeItemUiModel(
                     id = track.id.toString(),
                     title = track.title,
@@ -101,8 +89,8 @@ object HomeRepository{
                     type = HomeItemType.TRACK
                 )
             }
-        } catch (e: Exception){
-            Log.e(TAG, "Error while loading SoundCloud Genre ${genre.displayName}", e)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error while loading SoundCloud Hip-Hop: ${e.message}", e)
             emptyList()
         }
     }

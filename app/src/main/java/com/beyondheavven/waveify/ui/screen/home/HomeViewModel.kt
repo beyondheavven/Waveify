@@ -84,7 +84,7 @@ class HomeViewModel: ViewModel() {
                 }
 
                 val scHipHopDef = if (hasSoundCloud) async {
-                    HomeRepository.getSoundCloudGenreChart()
+                    HomeRepository.getSoundCloudHipHop()
                 } else {
                     null
                 }

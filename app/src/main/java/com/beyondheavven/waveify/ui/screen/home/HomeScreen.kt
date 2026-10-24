@@ -82,7 +82,7 @@ fun HomeScreen(
         } else {
             if (uiState.isSpotifyConnected) {
                 HomeCarouselSection(
-                    title = "Spotify",
+                    title = "New Releases",
                     sourceName = "Spotify",
                     sourceColor = StatusSuccess,
                     items = uiState.spotifyNewReleases,
@@ -103,7 +103,7 @@ fun HomeScreen(
 
             if (uiState.isSoundCloudConnected) {
                 HomeCarouselSection(
-                    title = "SoundCloud",
+                    title = "Trending",
                     sourceName = "SoundCloud",
                     sourceColor = Color(0xFFFF5500),
                     items = uiState.soundCloudTrending,
