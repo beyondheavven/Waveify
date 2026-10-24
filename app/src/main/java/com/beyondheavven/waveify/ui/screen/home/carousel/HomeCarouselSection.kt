@@ -1,6 +1,5 @@
-package com.beyondheavven.waveify.ui.screen.home.corousel
+package com.beyondheavven.waveify.ui.screen.home.carousel
 
-import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,21 +24,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.beyondheavven.waveify.data.model.HomeItemUiModel
 import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.ui.screen.home.card.HomeTrackCard
 import com.beyondheavven.waveify.ui.theme.TextPrimary
-import org.w3c.dom.Text
 
 @Composable
 fun HomeCarouselSection(
     title: String,
     sourceName: String,
     sourceColor: Color,
-    tracks: List<TrackUiModel>,
-    onTrackClick: (track: TrackUiModel) -> Unit,
+    items: List<HomeItemUiModel>,
+    onItemClick: (item: HomeItemUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (tracks.isEmpty()) return
+    if (items.isEmpty()) return
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -87,10 +86,10 @@ fun HomeCarouselSection(
             contentPadding = PaddingValues(horizontal = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            items(tracks, key = { it.id }) {track ->
+            items(items, key = { it.id }) { item ->
                 HomeTrackCard(
-                    track = track,
-                    onClick = { onTrackClick(track)}
+                    item = item,
+                    onClick = { onItemClick(item)}
                 )
             }
         }

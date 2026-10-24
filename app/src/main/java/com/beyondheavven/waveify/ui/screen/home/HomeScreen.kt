@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,9 +22,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
+import com.beyondheavven.waveify.player.spotify.SpotifyPlayerManager
 import com.beyondheavven.waveify.ui.screen.home.card.ConnectServiceCard
-import com.beyondheavven.waveify.ui.screen.home.corousel.HomeCarouselSection
+import com.beyondheavven.waveify.ui.screen.home.carousel.HomeCarouselSection
+import com.beyondheavven.waveify.ui.theme.StatusSuccess
+import com.beyondheavven.waveify.ui.theme.WaveifyRed
 
 @Composable
 fun HomeScreen(
@@ -41,14 +45,14 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .verticalScroll(scrollState)
+            .padding(vertical = 16.dp)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
-
         Text(
             text = "Waveify",
             style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 20.dp)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -60,28 +64,24 @@ fun HomeScreen(
                     .height(200.dp),
                 contentAlignment = Alignment.Center
             ) {
-
+                CircularProgressIndicator(color = WaveifyRed)
             }
         } else {
             if (uiState.isSpotifyConnected) {
                 HomeCarouselSection(
                     title = "Spotify Recommendations",
                     sourceName = "Spotify",
-                    sourceColor = Color(0xFF1DB954),
-                    tracks = uiState.spotifyRecommendations,
-                    onTrackClick = { selectedTracks ->
-                        WaveifyPlayer.play(
-                            track = selectedTracks,
-                            playlist = uiState.spotifyRecommendations,
-                            context = context
-                        )
+                    sourceColor = StatusSuccess,
+                    items = uiState.spotifyNewReleases,
+                    onItemClick = { item ->
+                        SpotifyPlayerManager.play(item.spotifyUri ?: item.id, context)
                     }
                 )
             } else {
                 ConnectServiceCard(
                     serviceName = "Spotify",
-                    serviceColor = Color(0xFF1DB954),
-                    description = "Please enter in Spotify account.",
+                    serviceColor = StatusSuccess,
+                    description = "Connect Spotify to discover new releases and playlists.",
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
             }
@@ -90,17 +90,14 @@ fun HomeScreen(
 
             if (uiState.isSoundCloudConnected) {
                 HomeCarouselSection(
-                    title = "SoundCloud recommendations",
+                    title = "SoundCloud trends now",
                     sourceName = "SoundCloud",
                     sourceColor = Color(0xFFFF5500),
-                    tracks = uiState.soundCloudTrending,
-                    onTrackClick = { selectedTrack ->
-                        WaveifyPlayer.play(
-                            track = selectedTrack,
-                            playlist = uiState.soundCloudTrending,
-                            context = context
-                        )
+                    items = uiState.soundCloudTrending,
+                    onItemClick = { item ->
+                        SpotifyPlayerManager.play(item.id)
                     }
+
                 )
             } else {
                 ConnectServiceCard(
