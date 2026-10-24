@@ -16,7 +16,7 @@ object HomeRepository{
 
     suspend fun getSpotifyNewRelease(): List<HomeItemUiModel> = withContext(Dispatchers.IO) {
         try {
-            val response = SpotifyClient.api.getNewReleases(limit = 20)
+            val response = SpotifyClient.api.searchNewReleases()
             response.albums.items.map { album ->
                 HomeItemUiModel(
                     id = album.id,
@@ -36,7 +36,7 @@ object HomeRepository{
 
     suspend fun getSpotifyFeaturedPlaylists(): List<HomeItemUiModel> = withContext(Dispatchers.IO) {
         try {
-            val response = SpotifyClient.api.getFeaturedPlaylists(limit = 20)
+            val response = SpotifyClient.api.searchPlaylists()
             response.playlists.items.map { playlist ->
                 HomeItemUiModel(
                     id = playlist.id,

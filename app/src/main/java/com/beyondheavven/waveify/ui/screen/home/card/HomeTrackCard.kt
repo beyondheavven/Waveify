@@ -30,7 +30,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.model.HomeItemType
 import com.beyondheavven.waveify.data.model.HomeItemUiModel
-import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.ui.cover.CoverSize
 import com.beyondheavven.waveify.ui.cover.WaveifyCover
 import com.beyondheavven.waveify.ui.theme.TextMuted
@@ -72,7 +71,7 @@ fun HomeTrackCard(
             modifier = Modifier
                 .size(140.dp)
                 .clip(RoundedCornerShape(14.dp))
-        ){
+        ) {
             WaveifyCover(
                 coverUrl = item.coverUrl,
                 size = CoverSize.MEDIUM,
@@ -98,6 +97,7 @@ fun HomeTrackCard(
 
                 }
             }
+        }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -120,6 +120,4 @@ fun HomeTrackCard(
                 overflow = TextOverflow.Ellipsis
             )
         }
-    }
-
 }

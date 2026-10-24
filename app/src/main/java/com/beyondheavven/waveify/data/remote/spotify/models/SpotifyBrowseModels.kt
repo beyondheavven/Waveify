@@ -2,7 +2,12 @@ package com.beyondheavven.waveify.data.remote.spotify.models
 
 import com.google.gson.annotations.SerializedName
 
-data class SpotifyNewReleasesResponse(
+data class SpotifySearchPlaylistsResponse(
+    @SerializedName("playlists")
+    val playlists: SpotifyPlaylistsContainer
+)
+
+data class SpotifySearchAlbumsResponse(
     @SerializedName("albums")
     val albums: SpotifyAlbumsContainer
 )
@@ -32,15 +37,6 @@ data class SpotifyAlbumRecommendations(
     @SerializedName("images")
     val images: List<SpotifyImageDto>
 
-)
-
-data class SpotifyFeaturedPlaylistsResponse(
-
-    @SerializedName("message")
-    val message: String?,
-
-    @SerializedName("playlists")
-    val playlists: SpotifyPlaylistsContainer
 )
 
 data class SpotifyPlaylistsContainer(
