@@ -1,34 +1,109 @@
 package com.beyondheavven.waveify.ui.screen.home
 
 import android.util.Log
-import com.beyondheavven.waveify.data.model.TrackUiModel
-import com.beyondheavven.waveify.data.model.toTrackUiModel
+import com.beyondheavven.waveify.data.model.HomeItemType
+import com.beyondheavven.waveify.data.model.HomeItemUiModel
+import com.beyondheavven.waveify.data.model.TrackSource
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
+import com.beyondheavven.waveify.data.remote.soundcloud.models.SoundCloudGenre
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object HomeRepository{
 
-    suspend fun getSpotifyRecommendations(): List<TrackUiModel> = withContext(Dispatchers.IO) {
+    private const val TAG = "HomeRepository"
+
+    suspend fun getSpotifyNewRelease(): List<HomeItemUiModel> = withContext(Dispatchers.IO) {
         try {
-            val response = SpotifyClient.api.getRecommendations()
-            response.tracks.map { it.toTrackUiModel() }
+            val response = SpotifyClient.api.getNewReleases(limit = 20)
+            response.albums.items.map { album ->
+                HomeItemUiModel(
+                    id = album.id,
+                    title = album.name,
+                    subtitle = album.artists.joinToString(", ") { it.name }.ifEmpty { "Spotify" },
+                    coverUrl = album.images.firstOrNull()?.url,
+                    source = TrackSource.SPOTIFY,
+                    type = HomeItemType.ALBUM,
+                    spotifyUri = "spotify:album:${album.id}"
+                )
+            }
         } catch (e: Exception) {
-            Log.e("HomeRepository", "Spotify error : ${e.message}", e)
+            Log.e(TAG, "Spotify new releases error ${e.message}")
             emptyList()
         }
-
     }
 
-    suspend fun getSoundCloudRecommendations(): List<TrackUiModel> = withContext(Dispatchers.IO) {
+    suspend fun getSpotifyFeaturedPlaylists(): List<HomeItemUiModel> = withContext(Dispatchers.IO) {
         try {
-            val response = SoundCloudClient.api.getTrendingCharts()
-            response.collection.map { it.track.toTrackUiModel() }
+            val response = SpotifyClient.api.getFeaturedPlaylists(limit = 20)
+            response.playlists.items.map { playlist ->
+                HomeItemUiModel(
+                    id = playlist.id,
+                    title = playlist.name,
+                    subtitle = playlist.description?.takeIf { it.isNotBlank() } ?: "Featured Playlist",
+                    coverUrl = playlist.images.firstOrNull()?.url,
+                    source = TrackSource.SPOTIFY,
+                    type = HomeItemType.ALBUM,
+                    spotifyUri = "spotify:playlist:${playlist.id}"
+                )
+            }
         } catch (e: Exception) {
-            Log.e("HomeRepository", "SoundCloud charts error : ${e.message}", e)
+            Log.e(TAG, "Spotify featured playlists error ${e.message}")
             emptyList()
         }
     }
 
+    suspend fun getSoundCloudTrending(limit: Int = 20): List<HomeItemUiModel> = withContext(Dispatchers.IO) {
+        try {
+            val response = SoundCloudClient.api.getTrendingCharts(
+                kind = "trending",
+                genre = SoundCloudGenre.ALL_MUSIC.queryValue,
+                limit = limit
+            )
+
+            response.collection.mapNotNull { item ->
+                val track = item.track ?: return@mapNotNull null
+                HomeItemUiModel(
+                    id = track.id.toString(),
+                    title = track.title,
+                    subtitle = track.user.username,
+                    coverUrl = track.artworkUrl ?: track.user.avatarUrl,
+                    source = TrackSource.SOUNDCLOUD,
+                    type = HomeItemType.TRACK
+                )
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error while loading SoundCloud trends: ${e.message}", e)
+            emptyList()
+        }
+    }
+
+    suspend fun getSoundCloudGenreChart(
+        genre: SoundCloudGenre = SoundCloudGenre.HIP_HOP,
+        limit: Int = 20
+    ): List<HomeItemUiModel> = withContext(Dispatchers.IO) {
+        try {
+            val response = SoundCloudClient.api.getGenreCharts(
+                kind = "top",
+                genre = genre.queryValue,
+                limit = limit
+            )
+
+            response.collection.mapNotNull { item ->
+                val track = item.track ?: return@mapNotNull null
+                HomeItemUiModel(
+                    id = track.id.toString(),
+                    title = track.title,
+                    subtitle = track.user.username,
+                    coverUrl = track.artworkUrl ?: track.user.avatarUrl,
+                    source = TrackSource.SOUNDCLOUD,
+                    type = HomeItemType.TRACK
+                )
+            }
+        } catch (e: Exception){
+            Log.e(TAG, "Error while loading SoundCloud Genre ${genre.displayName}", e)
+            emptyList()
+        }
+    }
 }

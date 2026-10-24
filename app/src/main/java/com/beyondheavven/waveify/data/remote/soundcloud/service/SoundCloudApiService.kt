@@ -44,12 +44,25 @@ interface SoundCloudApiService {
     suspend fun getTrendingCharts(
 
         @Query("kind")
-        kind: String = "top",
+        kind: String = "trending",
 
         @Query("genre")
         genre: String = "soundcloud:genres:all-music",
 
         @Query("limit")
-        limit: Int = 25
+        limit: Int = 20
+    ): SoundCloudChartsResponse
+
+    @GET("charts")
+    suspend fun getGenreCharts(
+
+        @Query("kind")
+        kind: String = "top",
+
+        @Query("genre")
+        genre: String,
+
+        @Query("limit")
+        limit: Int = 20
     ): SoundCloudChartsResponse
 }
