@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class SpotifySearchPlaylistsResponse(
     @SerializedName("playlists")
-    val playlists: SpotifyPlaylistsContainer
+    val playlists: SpotifyPlaylistsContainer?
 )
 
 data class SpotifySearchAlbumsResponse(
@@ -41,7 +41,7 @@ data class SpotifyAlbumRecommendations(
 
 data class SpotifyPlaylistsContainer(
     @SerializedName("items")
-    val items: List<SpotifyPlayListItemDto>
+    val items: List<SpotifyPlayListItemDto?>?
 )
 
 data class SpotifyPlayListItemDto(
@@ -56,6 +56,5 @@ data class SpotifyPlayListItemDto(
     val description: String?,
 
     @SerializedName("images")
-    val images: List<SpotifyImageDto>
+    val images: List<SpotifyImageDto>?
 )
-

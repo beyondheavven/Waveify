@@ -37,17 +37,17 @@ object HomeRepository{
     suspend fun getSpotifyFeaturedPlaylists(): List<HomeItemUiModel> = withContext(Dispatchers.IO) {
         try {
             val response = SpotifyClient.api.searchPlaylists()
-            response.playlists.items.map { playlist ->
+            response.playlists?.items?.filterNotNull()?.map { playlist ->
                 HomeItemUiModel(
                     id = playlist.id,
                     title = playlist.name,
                     subtitle = playlist.description?.takeIf { it.isNotBlank() } ?: "Featured Playlist",
-                    coverUrl = playlist.images.firstOrNull()?.url,
+                    coverUrl = playlist.images?.firstOrNull()?.url,
                     source = TrackSource.SPOTIFY,
                     type = HomeItemType.ALBUM,
                     spotifyUri = "spotify:playlist:${playlist.id}"
                 )
-            }
+            } ?: emptyList()
         } catch (e: Exception) {
             Log.e(TAG, "Spotify featured playlists error ${e.message}")
             emptyList()

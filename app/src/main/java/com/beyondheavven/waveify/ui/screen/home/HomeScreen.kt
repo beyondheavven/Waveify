@@ -82,7 +82,7 @@ fun HomeScreen(
         } else {
             if (uiState.isSpotifyConnected) {
                 HomeCarouselSection(
-                    title = "Spotify Recommendations",
+                    title = "Spotify",
                     sourceName = "Spotify",
                     sourceColor = StatusSuccess,
                     items = uiState.spotifyNewReleases,
@@ -99,11 +99,11 @@ fun HomeScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             if (uiState.isSoundCloudConnected) {
                 HomeCarouselSection(
-                    title = "SoundCloud trends now",
+                    title = "SoundCloud",
                     sourceName = "SoundCloud",
                     sourceColor = Color(0xFFFF5500),
                     items = uiState.soundCloudTrending,
@@ -133,22 +133,22 @@ fun HomeScreen(
                         SpotifyPlayerManager.play(item.spotifyUri ?: item.id, context)
                     }
                 )
-
-                Spacer(modifier = Modifier.height(28.dp))
-
-                if (uiState.isSoundCloudConnected && uiState.soundCloudHipHop.isNotEmpty()) {
-                    HomeCarouselSection(
-                        title = "Hip-hop & Rap",
-                        sourceName = "SoundCloud",
-                        sourceColor = Color(0xFFFF5500),
-                        items = uiState.soundCloudHipHop,
-                        onItemClick = {
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(28.dp))
-                }
-                Spacer(modifier = Modifier.height(60.dp))
             }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            if (uiState.isSoundCloudConnected && uiState.soundCloudHipHop.isNotEmpty()) {
+                HomeCarouselSection(
+                    title = "Hip-hop & Rap",
+                    sourceName = "SoundCloud",
+                    sourceColor = Color(0xFFFF5500),
+                    items = uiState.soundCloudHipHop,
+                    onItemClick = {
+                    }
+                )
+                Spacer(modifier = Modifier.height(28.dp))
+            }
+            Spacer(modifier = Modifier.height(60.dp))
         }
     }
 }
