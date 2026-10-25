@@ -39,7 +39,7 @@ fun SoundCloudTrackModel.toTrackUiModel(): TrackUiModel {
 
 fun HomeItemUiModel.toTrackUiModel(): TrackUiModel {
     return TrackUiModel(
-        id = this.spotifyUri ?: this.id,
+        id = if (source == TrackSource.SOUNDCLOUD) "sc_${id}" else (spotifyUri ?: id),
         title = this.title,
         artist = this.subtitle,
         coverUrl = this.coverUrl,
