@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.beyondheavven.waveify.data.model.toTrackUiModel
 import com.beyondheavven.waveify.player.soundcloud.SoundCloudPlayerManager
 import com.beyondheavven.waveify.player.spotify.SpotifyPlayerManager
 import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
@@ -87,7 +88,9 @@ fun HomeScreen(
                     sourceColor = StatusSuccess,
                     items = uiState.spotifyNewReleases,
                     onItemClick = { item ->
-                        SpotifyPlayerManager.play(item.spotifyUri ?: item.id, context)
+                        val track = item.toTrackUiModel()
+                        val playlist = uiState.soundCloudHipHop.map { it.toTrackUiModel() }
+                        WaveifyPlayer.play(track, playlist, context)
                     }
                 )
             } else {
@@ -108,7 +111,9 @@ fun HomeScreen(
                     sourceColor = Color(0xFFFF5500),
                     items = uiState.soundCloudTrending,
                     onItemClick = { item ->
-                        SpotifyPlayerManager.play(item.id)
+                        val track = item.toTrackUiModel()
+                        val playlist = uiState.soundCloudTrending.map { it.toTrackUiModel() }
+                        WaveifyPlayer.play(track, playlist, context)
                     }
 
                 )
@@ -130,7 +135,9 @@ fun HomeScreen(
                     sourceColor = StatusSuccess,
                     items = uiState.spotifyFeaturedPlaylists,
                     onItemClick = { item ->
-                        SpotifyPlayerManager.play(item.spotifyUri ?: item.id, context)
+                        val track = item.toTrackUiModel()
+                        val playlist = uiState.spotifyFeaturedPlaylists.map { it.toTrackUiModel() }
+                        WaveifyPlayer.play(track, playlist, context)
                     }
                 )
             }
@@ -143,7 +150,10 @@ fun HomeScreen(
                     sourceName = "SoundCloud",
                     sourceColor = Color(0xFFFF5500),
                     items = uiState.soundCloudHipHop,
-                    onItemClick = {
+                    onItemClick = { item ->
+                        val track = item.toTrackUiModel()
+                        val playlist = uiState.soundCloudHipHop.map { it.toTrackUiModel() }
+                        WaveifyPlayer.play(track, playlist, context)
                     }
                 )
                 Spacer(modifier = Modifier.height(28.dp))

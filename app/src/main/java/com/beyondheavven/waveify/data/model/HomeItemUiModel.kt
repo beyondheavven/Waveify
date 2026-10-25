@@ -13,5 +13,6 @@ data class HomeItemUiModel(
     val coverUrl: String?,
     val source: TrackSource,
     val type: HomeItemType,
-    val spotifyUri: String? = null
+    val spotifyUri: String? = null,
+    val streamUrl: String? = null
 )

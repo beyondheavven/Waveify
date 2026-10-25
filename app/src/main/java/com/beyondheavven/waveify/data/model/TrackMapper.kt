@@ -36,3 +36,16 @@ fun SoundCloudTrackModel.toTrackUiModel(): TrackUiModel {
         streamUrl = progressiveUrl
     )
 }
+
+fun HomeItemUiModel.toTrackUiModel(): TrackUiModel {
+    return TrackUiModel(
+        id = this.spotifyUri ?: this.id,
+        title = this.title,
+        artist = this.subtitle,
+        coverUrl = this.coverUrl,
+        durationFormatted = "",
+        source = this.source,
+        streamUrl = null
+
+    )
+}
