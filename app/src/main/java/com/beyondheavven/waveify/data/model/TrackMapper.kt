@@ -17,6 +17,7 @@ fun SpotifyTrackDto.toTrackUiModel(): TrackUiModel {
         artist = artists.joinToString(", ") { it.name },
         coverUrl = album?.images?.firstOrNull()?.url,
         durationFormatted = formatDuration(durationMs),
+        durationMs = durationMs,
         source = TrackSource.SPOTIFY
     )
 }
@@ -32,6 +33,7 @@ fun SoundCloudTrackModel.toTrackUiModel(): TrackUiModel {
         artist = user.username,
         coverUrl = artworkUrl?.replace("-large", "-t500x500"),
         durationFormatted = formatDuration(durationMs),
+        durationMs = durationMs,
         source = TrackSource.SOUNDCLOUD,
         streamUrl = progressiveUrl
     )
@@ -44,8 +46,9 @@ fun HomeItemUiModel.toTrackUiModel(): TrackUiModel {
         artist = this.subtitle,
         coverUrl = this.coverUrl,
         durationFormatted = "",
+        durationMs = 0L,
         source = this.source,
-        streamUrl = null
+        streamUrl = this.streamUrl
 
     )
 }
