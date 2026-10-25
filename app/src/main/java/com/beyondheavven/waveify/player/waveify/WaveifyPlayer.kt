@@ -15,6 +15,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 object WaveifyPlayer {
@@ -103,6 +104,14 @@ object WaveifyPlayer {
 
     fun seekTo(positionMs: Long) {
         currentPositionMs = positionMs
+    }
+
+    fun updateDuration(duration: Long) {
+        durationMs = duration
+    }
+
+    fun updatePosition(position: Long) {
+        currentPositionMs = position
     }
 
     private fun startProgressTicker() {
