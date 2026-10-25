@@ -2,15 +2,18 @@ package com.beyondheavven.waveify.player.soundcloud
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
+import com.beyondheavven.waveify.player.visualizer.AudioWaveformTracker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,6 +22,11 @@ import kotlinx.coroutines.withContext
 object SoundCloudPlayerManager {
 
     private const val TAG = "SoundCloudPlayer"
+
+    private val audioTracker = AudioWaveformTracker()
+
+    var currentWaveform by mutableStateOf<ByteArray?>(null)
+        private set
 
     private var exoPlayer: ExoPlayer? = null
 
@@ -64,6 +72,7 @@ object SoundCloudPlayerManager {
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun playUrl(url: String, context: Context){
         if (exoPlayer == null) {
             exoPlayer = ExoPlayer.Builder(context.applicationContext).build().apply {
@@ -93,6 +102,14 @@ object SoundCloudPlayerManager {
             play()
         }
 
+        audioTracker.onWaveformUpdate = { data ->
+            currentWaveform = data
+        }
+
+        exoPlayer?.audioSessionId?.let { sessionId ->
+            audioTracker.attachTo(sessionId)
+        }
+
     }
 
     fun pause(){
@@ -108,8 +125,10 @@ object SoundCloudPlayerManager {
     }
 
     fun release(){
+        audioTracker.release()
         exoPlayer?.release()
         exoPlayer = null
         isPlayingSc = false
+        currentWaveform = null
     }
 }
