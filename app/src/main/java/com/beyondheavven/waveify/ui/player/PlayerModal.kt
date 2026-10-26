@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.beyondheavven.waveify.data.model.formatDuration
 import com.beyondheavven.waveify.player.soundcloud.SoundCloudPlayerManager
 import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
 import com.beyondheavven.waveify.ui.cover.CoverSize
@@ -48,6 +49,7 @@ import com.beyondheavven.waveify.ui.theme.DarkBackground
 import com.beyondheavven.waveify.ui.theme.DarkSurface
 import com.beyondheavven.waveify.ui.theme.DividerColor
 import com.beyondheavven.waveify.ui.theme.TextPrimary
+import com.beyondheavven.waveify.ui.theme.TextSecondary
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,23 +128,58 @@ fun PlayerModal(
                     color = TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
+                )
 
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = track.artist,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Slider(
-                value = WaveifyPlayer.currentPositionMs.toFloat(),
-                onValueChange = { WaveifyPlayer.seekTo(it.toLong())},
-                valueRange = 0f..WaveifyPlayer.durationMs.toFloat().coerceAtLeast(1f),
-                colors = SliderDefaults.colors(
-                    thumbColor = WaveifyRed,
-                    activeTrackColor = WaveifyRed,
-                    inactiveTickColor = DividerColor
-                ),
+            val totalDuration = WaveifyPlayer.durationMs.coerceAtLeast(1L)
+            val currentPos = WaveifyPlayer.displayPositionMs.coerceIn(0L, totalDuration)
+
+            Column(
                 modifier = Modifier.fillMaxWidth()
-            )
+            ) {
+                Slider(
+                    value = currentPos.toFloat(),
+                    onValueChange = { WaveifyPlayer.onScrub(it.toLong())},
+                    onValueChangeFinished = { WaveifyPlayer.onScrubFinished() },
+                    valueRange = 0f..totalDuration.toFloat(),
+                    colors = SliderDefaults.colors(
+                        thumbColor = WaveifyRed,
+                        activeTrackColor = WaveifyRed,
+                        inactiveTrackColor = DividerColor
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = formatDuration(currentPos),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
+                    )
+                    Text(
+                        text = formatDuration(totalDuration),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 

@@ -46,6 +46,9 @@ object SpotifyPlayerManager {
                     playerState.track?.duration?.let { dur ->
                         if (dur > 0) WaveifyPlayer.updateDuration(dur)
                     }
+                    if (playerState.playbackPosition >= 0){
+                        WaveifyPlayer.updatePosition(playerState.playbackPosition)
+                    }
                 }
 
                 onConnected?.invoke()
@@ -84,6 +87,10 @@ object SpotifyPlayerManager {
     fun resume(){
         spotifyAppRemote?.playerApi?.resume()
         isPlaying = true
+    }
+
+    fun seekTo(positionMs: Long) {
+        spotifyAppRemote?.playerApi?.seekTo(positionMs)
     }
 
     fun togglePlayPause(){

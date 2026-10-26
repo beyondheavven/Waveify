@@ -15,12 +15,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 object WaveifyPlayer {
 
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.Main.immediate)
 
     private var progressJob: Job? = null
 
@@ -38,10 +37,31 @@ object WaveifyPlayer {
     var durationMs by mutableLongStateOf(1L)
         private set
 
+    var isScrubbing by mutableStateOf(false)
+        private set
+
+    var scrubPositionMs by mutableLongStateOf(0L)
+        private set
+
+    val displayPositionMs: Long
+        get() = if (isScrubbing) scrubPositionMs else currentPositionMs
+
+    fun onScrub(positionMs: Long) {
+        isScrubbing = true
+        scrubPositionMs = positionMs
+    }
+
+    fun onScrubFinished() {
+        seekTo(scrubPositionMs)
+        isScrubbing = false
+    }
+
     fun play(track: TrackUiModel, playlist: List<TrackUiModel>, context: Context) {
         currentTrack = track
         currentPlaylist = playlist
         currentPositionMs = 0L
+
+        durationMs = if (track.durationMs > 0) track.durationMs else 1L
 
         when (track.source) {
             TrackSource.SPOTIFY -> {
@@ -104,6 +124,11 @@ object WaveifyPlayer {
 
     fun seekTo(positionMs: Long) {
         currentPositionMs = positionMs
+        when(currentTrack?.source){
+            TrackSource.SPOTIFY -> SpotifyPlayerManager.seekTo(positionMs)
+            TrackSource.SOUNDCLOUD -> SoundCloudPlayerManager.seekTo(positionMs)
+            else -> Unit
+        }
     }
 
     fun updateDuration(duration: Long) {
@@ -118,8 +143,20 @@ object WaveifyPlayer {
         progressJob?.cancel()
         progressJob = scope.launch {
             while (isActive) {
-                if (isPlaying) {
-                    currentPositionMs += 1000L
+                if (isPlaying && !isScrubbing) {
+                    when(currentTrack?.source) {
+                        TrackSource.SOUNDCLOUD -> {
+                            val pos = SoundCloudPlayerManager.getCurrentPosition()
+                            if (pos > 0) {
+                                currentPositionMs = pos
+                            }
+                        }
+
+                        TrackSource.SPOTIFY -> {
+                            currentPositionMs += 1000L
+                        }
+                        else -> Unit
+                    }
                 }
                 delay(1000L.milliseconds)
             }

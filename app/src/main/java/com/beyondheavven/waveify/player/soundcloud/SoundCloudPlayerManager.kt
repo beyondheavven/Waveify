@@ -14,6 +14,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.player.visualizer.AudioWaveformTracker
+import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -83,6 +84,12 @@ object SoundCloudPlayerManager {
 
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         isLoadingSc = playbackState == Player.STATE_BUFFERING
+                        if (playbackState == Player.STATE_READY) {
+                            val duration = exoPlayer?.duration ?: 0L
+                            if (duration > 0) {
+                                WaveifyPlayer.updateDuration(duration)
+                            }
+                        }
                     }
 
                     override fun onPlayerError(error: PlaybackException) {
@@ -112,13 +119,19 @@ object SoundCloudPlayerManager {
 
     }
 
-    fun pause(){
+    fun pause() {
         exoPlayer?.pause()
     }
 
-    fun resume(){
+    fun resume() {
         exoPlayer?.play()
     }
+
+    fun seekTo(positionMs: Long) {
+        exoPlayer?.seekTo(positionMs)
+    }
+
+    fun getCurrentPosition(): Long = exoPlayer?.currentPosition ?: 0L
 
     fun togglePlayPause(){
         if (isPlayingSc) pause() else resume()
