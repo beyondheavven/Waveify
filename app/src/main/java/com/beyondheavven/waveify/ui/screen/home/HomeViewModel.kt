@@ -23,6 +23,12 @@ data class HomeUiState(
 
     val spotifyFeaturedPlaylists: List<HomeItemUiModel> = emptyList(),
 
+    val spotifyTopTracks: List<HomeItemUiModel> = emptyList(),
+
+    val spotifyUserPlaylists: List<HomeItemUiModel> = emptyList(),
+
+    val spotifyArtistsTracks: List<HomeItemUiModel> = emptyList(),
+
     val soundCloudTrending: List<HomeItemUiModel> = emptyList(),
 
     val soundCloudHipHop: List<HomeItemUiModel> = emptyList(),
@@ -65,6 +71,23 @@ class HomeViewModel: ViewModel() {
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, error = null)
             try {
+                val topTracksDef = if (hasSpotify) async {
+                    HomeRepository.getSpotifyTopTracks()
+                } else {
+                    null
+                }
+
+                val userPlaylistsDef = if (hasSpotify) async {
+                    HomeRepository.getSpotifyUserPlaylists()
+                } else {
+                    null
+                }
+                val artistsTracksDef = if (hasSpotify) async {
+                    HomeRepository.getSpotifyFavoriteArtistsAlbums()
+                } else {
+                    null
+                }
+
                 val newReleasesDef = if (hasSpotify) async {
                     HomeRepository.getSpotifyNewRelease()
                 } else {
@@ -89,6 +112,10 @@ class HomeViewModel: ViewModel() {
                     null
                 }
 
+                val topTracks = topTracksDef?.await() ?: emptyList()
+                val userPlaylists = userPlaylistsDef?.await() ?: emptyList()
+                val artistsTracks = artistsTracksDef?.await() ?: emptyList()
+
                 val newReleases = newReleasesDef?.await() ?: emptyList()
                 val featuredPlaylists = featuredPlaylistsDef?.await() ?: emptyList()
                 val scTrending = scTrendingDef?.await() ?: emptyList()
@@ -100,6 +127,9 @@ class HomeViewModel: ViewModel() {
                     isSoundCloudConnected = hasSoundCloud,
                     spotifyNewReleases = newReleases,
                     spotifyFeaturedPlaylists = featuredPlaylists,
+                    spotifyTopTracks = topTracks,
+                    spotifyUserPlaylists = userPlaylists,
+                    spotifyArtistsTracks = artistsTracks,
                     soundCloudTrending = scTrending,
                     soundCloudHipHop = scHipHop
                 )

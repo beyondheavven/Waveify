@@ -43,7 +43,10 @@ object SpotifyAuthManager {
             "user-read-private",
             "user-modify-playback-state",
             "user-read-playback-state",
-            "user-library-read"
+            "user-library-read",
+            "user-top-read",
+            "playlist-read-private",
+            "playlist-read-collaborative"
         ).joinToString(" ")
 
         val authUri = Uri.parse("https://accounts.spotify.com/authorize").buildUpon()

@@ -23,8 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.beyondheavven.waveify.data.model.toTrackUiModel
-import com.beyondheavven.waveify.player.soundcloud.SoundCloudPlayerManager
-import com.beyondheavven.waveify.player.spotify.SpotifyPlayerManager
 import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
 import com.beyondheavven.waveify.ui.screen.home.card.ConnectServiceCard
 import com.beyondheavven.waveify.ui.screen.home.card.FavouriteTracksCard
@@ -69,7 +67,7 @@ fun HomeScreen(
             modifier = Modifier.padding(horizontal = 20.dp)
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         if (uiState.isLoading) {
             Box(
@@ -83,13 +81,13 @@ fun HomeScreen(
         } else {
             if (uiState.isSpotifyConnected) {
                 HomeCarouselSection(
-                    title = "New Releases",
+                    title = "On Your Repeat",
                     sourceName = "Spotify",
                     sourceColor = StatusSuccess,
-                    items = uiState.spotifyNewReleases,
+                    items = uiState.spotifyTopTracks,
                     onItemClick = { item ->
                         val track = item.toTrackUiModel()
-                        val playlist = uiState.soundCloudHipHop.map { it.toTrackUiModel() }
+                        val playlist = uiState.spotifyTopTracks.map { it.toTrackUiModel() }
                         WaveifyPlayer.play(track, playlist, context)
                     }
                 )
@@ -102,7 +100,7 @@ fun HomeScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             if (uiState.isSoundCloudConnected) {
                 HomeCarouselSection(
@@ -126,7 +124,55 @@ fun HomeScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (uiState.isSpotifyConnected && uiState.spotifyNewReleases.isNotEmpty()) {
+                HomeCarouselSection(
+                    title = "New Releases",
+                    sourceName = "Spotify",
+                    sourceColor = StatusSuccess,
+                    items = uiState.spotifyNewReleases,
+                    onItemClick = { item ->
+                        val track = item.toTrackUiModel()
+                        val playlist = uiState.soundCloudHipHop.map { it.toTrackUiModel() }
+                        WaveifyPlayer.play(track, playlist, context)
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (uiState.isSpotifyConnected && uiState.spotifyUserPlaylists.isNotEmpty()) {
+                HomeCarouselSection(
+                    title = "Playlists & Mixes",
+                    sourceName = "Spotify",
+                    sourceColor = StatusSuccess,
+                    items = uiState.spotifyUserPlaylists,
+                    onItemClick = { item ->
+                        val track = item.toTrackUiModel()
+                        val playlist = uiState.spotifyUserPlaylists.map { it.toTrackUiModel() }
+                        WaveifyPlayer.play(track, playlist, context)
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (uiState.isSpotifyConnected && uiState.spotifyArtistsTracks.isNotEmpty()) {
+                HomeCarouselSection(
+                    title = "Favourite Artists",
+                    sourceName = "Spotify",
+                    sourceColor = StatusSuccess,
+                    items = uiState.spotifyArtistsTracks,
+                    onItemClick = { item ->
+                        val track = item.toTrackUiModel()
+                        val playlist = uiState.spotifyArtistsTracks.map { it.toTrackUiModel() }
+                        WaveifyPlayer.play(track, playlist, context)
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             if (uiState.isSpotifyConnected && uiState.spotifyFeaturedPlaylists.isNotEmpty()) {
                 HomeCarouselSection(
@@ -142,7 +188,7 @@ fun HomeScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             if (uiState.isSoundCloudConnected && uiState.soundCloudHipHop.isNotEmpty()) {
                 HomeCarouselSection(
@@ -156,7 +202,6 @@ fun HomeScreen(
                         WaveifyPlayer.play(track, playlist, context)
                     }
                 )
-                Spacer(modifier = Modifier.height(28.dp))
             }
             Spacer(modifier = Modifier.height(60.dp))
         }
