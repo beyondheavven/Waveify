@@ -39,7 +39,6 @@ import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
 import com.beyondheavven.waveify.ui.theme.TextMuted
 import com.beyondheavven.waveify.ui.theme.TextPrimary
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
-import com.beyondheavven.waveify.ui.theme.WaveifyRedDark
 
 @Composable
 fun MiniPlayer(

@@ -31,11 +31,11 @@ android {
 
         val spotifyClientId = localProperties.getProperty("SPOTIFY_CLIENT_ID") ?: ""
         val spotifySecret = localProperties.getProperty("SPOTIFY_SECRET") ?: ""
-        val spotifyRedirectUri = localProperties.getProperty("SPOTIFY_REDIRECT_URI") ?: ""
-        val spotifyBaseUrl = localProperties.getProperty("SPOTIFY_BASE_URL") ?: ""
-        val soundcloudBaseUrl = localProperties.getProperty("SOUNDCLOUD_BASE_URL") ?: ""
+        val spotifyRedirectUri = localProperties.getProperty("SPOTIFY_REDIRECT_URI")?.takeIf { it.isNotBlank() } ?: "waveify://callback"
+        val spotifyBaseUrl = localProperties.getProperty("SPOTIFY_BASE_URL")?.takeIf { it.isNotBlank() } ?: "https://api.spotify.com/"
+        val soundcloudBaseUrl = localProperties.getProperty("SOUNDCLOUD_BASE_URL")?.takeIf { it.isNotBlank() } ?: "https://api-v2.soundcloud.com/"
         val soundcloudClientId = localProperties.getProperty("SOUNDCLOUD_CLIENT_ID") ?: ""
-        val accountsBaseUrl = localProperties.getProperty("ACCOUNTS_BASE_URL") ?: ""
+        val accountsBaseUrl = localProperties.getProperty("ACCOUNTS_BASE_URL")?.takeIf { it.isNotBlank() } ?: "https://accounts.spotify.com/"
 
 
         buildConfigField("String", "SPOTIFY_CLIENT_ID", "\"$spotifyClientId\"")

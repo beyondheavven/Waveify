@@ -55,17 +55,19 @@ object SpotifyPlayerManager {
             }
 
             override fun onFailure(throwable: Throwable) {
-                isConnected = true
+                isConnected = false
                 Log.e(TAG, "Error occurred in SpotifyAppRemote ${throwable.message}", throwable)
             }
         })
     }
 
+    internal fun normalizeSpotifyUri(uriOrId: String): String = when {
+        uriOrId.startsWith("spotify:") -> uriOrId
+        else -> "spotify:track:$uriOrId"
+    }
+
     fun play(uriOrId: String, context: Context? = null){
-        val uri = when {
-            uriOrId.startsWith("spotify:") -> uriOrId
-            else -> "spotify:track:$uriOrId"
-        }
+        val uri = normalizeSpotifyUri(uriOrId)
 
         if (spotifyAppRemote?.isConnected == true) {
             Log.d(TAG, "Playing thru App Remote SDK: $uri")

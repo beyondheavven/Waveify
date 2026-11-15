@@ -14,7 +14,7 @@ object HomeRepository{
 
     private const val TAG = "HomeRepository"
 
-    private fun extractStreamUrl(track: SoundCloudTrackModel): String? {
+    internal fun extractStreamUrl(track: SoundCloudTrackModel): String? {
         return track.media?.transcodings?.firstOrNull{
             it.format.protocol == "progressive"
         }?.url ?: track.media?.transcodings?.firstOrNull()?.url

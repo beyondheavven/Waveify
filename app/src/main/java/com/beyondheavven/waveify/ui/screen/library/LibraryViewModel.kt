@@ -72,10 +72,6 @@ class LibraryViewModel(
             }
 
             if (repository.isSoundCloudConnected && soundCloudTracks.isEmpty()) {
-                repository.getInitialSpotifyTracks()
-            }
-
-            if (repository.isSoundCloudConnected && soundCloudTracks.isEmpty()) {
                 repository.getInitialSoundCloudTracks().onSuccess {
                     soundCloudTracks = it
                 }
@@ -132,14 +128,15 @@ class LibraryViewModel(
         paginationError = null
     }
 
-    private fun interleaveTracks(listA: List<TrackUiModel>, listB: List<TrackUiModel>): List<TrackUiModel> {
-        val result = mutableListOf<TrackUiModel>()
-        val maxLen = maxOf(listA.size, listB.size)
-        for (i in 0 until maxLen) {
-            if (i < listA.size) result.add(listA[i])
-            if (i < listB.size) result.add(listB[i
-            ])
+    companion object {
+        internal fun interleaveTracks(listA: List<TrackUiModel>, listB: List<TrackUiModel>): List<TrackUiModel> {
+            val result = mutableListOf<TrackUiModel>()
+            val maxLen = maxOf(listA.size, listB.size)
+            for (i in 0 until maxLen) {
+                if (i < listA.size) result.add(listA[i])
+                if (i < listB.size) result.add(listB[i])
+            }
+            return result
         }
-        return result
     }
 }
