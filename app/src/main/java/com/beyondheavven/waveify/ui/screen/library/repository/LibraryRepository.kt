@@ -23,7 +23,7 @@ class LibraryRepository(
         get() = !spotifyClient.accessToken.isNullOrEmpty()
 
     val isSoundCloudConnected: Boolean
-        get() = !soundCloudClient.connectedUsername.isNullOrEmpty()
+        get() = soundCloudClient.isAuthorized
 
     val hasAnySource: Boolean
         get() = isSpotifyLoggedIn || isSoundCloudConnected
@@ -55,17 +55,13 @@ class LibraryRepository(
         nextSoundCloudUrl = null
         if (!isSoundCloudConnected) return@runCatching emptyList()
 
-        val username = soundCloudClient.connectedUsername.orEmpty()
-        val userId = cachedSoundcloudUserId ?: resolveSoundCloudUserId(username)
+        val userId = soundCloudClient.currentUser?.id
+            ?: return@runCatching emptyList()
         cachedSoundcloudUserId = userId
 
-        if (userId != null) {
-            val scResponse = soundCloudClient.api.getUserLikes(userId = userId, limit = 50)
-            nextSoundCloudUrl = scResponse.nextHref
-            scResponse.collection.mapNotNull { it.track?.toTrackUiModel() }
-        } else {
-            emptyList()
-        }
+        val scResponse = soundCloudClient.api.getUserLikes(userId = userId, limit = 50)
+        nextSoundCloudUrl = scResponse.nextHref
+        scResponse.collection.mapNotNull { it.track?.toTrackUiModel() }
     }
 
     suspend fun loadMoreSoundCloudTracks(): Result<List<TrackUiModel>> = runCatching {
@@ -87,13 +83,4 @@ class LibraryRepository(
         cachedSoundcloudUserId = null
         nextSoundCloudUrl = null
     }
-
-    private suspend fun resolveSoundCloudUserId(username: String): Long? {
-        val profileUrl = if (username.startsWith("http")) username else "https://soundcloud.com/$username"
-        return runCatching {
-            soundCloudClient.api.resolveUser(profileUrl).id
-        }.getOrNull()
-    }
-
-
 }

@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.remote.spotify.auth.SpotifyAuthManager
+import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import com.beyondheavven.waveify.ui.screen.notification.NotificationController
 import com.beyondheavven.waveify.ui.screen.notification.NotificationState
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
@@ -29,6 +30,7 @@ fun SpotifyLoginButton(
         SpotifyAuthManager.authEvents.collect { event ->
             when (event) {
                 is SpotifyAuthManager.AuthEvent.Success -> {
+                    if (!SpotifyClient.isAuthorized) return@collect
                     notificationController.show(
                         message = "Successfully connected to Spotify",
                         NotificationState.SUCCESS

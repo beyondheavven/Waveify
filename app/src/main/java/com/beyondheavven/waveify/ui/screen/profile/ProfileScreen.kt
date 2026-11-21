@@ -20,63 +20,53 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.beyondheavven.waveify.data.remote.soundcloud.auth.SoundCloudAuthManager
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import com.beyondheavven.waveify.ui.cover.AsciiColorMode
 import com.beyondheavven.waveify.ui.cover.AsciiSettings
 import com.beyondheavven.waveify.ui.screen.profile.spotify.SpotifyLoginButton
+import com.beyondheavven.waveify.ui.screen.notification.NotificationBanner
 import com.beyondheavven.waveify.ui.screen.notification.rememberNotificationController
+import com.beyondheavven.waveify.ui.screen.profile.soundcloud.SoundCloudLoginButton
 import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
-import com.beyondheavven.waveify.ui.theme.DarkSurfaceVariant
 import com.beyondheavven.waveify.ui.theme.DividerColor
 import com.beyondheavven.waveify.ui.theme.TextMuted
 import com.beyondheavven.waveify.ui.theme.TextPrimary
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
-import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(padding: PaddingValues) {
-    val coroutineScope = rememberCoroutineScope()
-
     val notificationController = rememberNotificationController()
 
     var isSpotifyConnected by remember { mutableStateOf(!SpotifyClient.accessToken.isNullOrEmpty()) }
 
-    var isSoundCloudConnected by remember { mutableStateOf(!SoundCloudClient.connectedUsername.isNullOrEmpty()) }
+    var isSoundCloudConnected by remember { mutableStateOf(SoundCloudClient.isAuthorized) }
 
-    var soundCloudInput by remember { mutableStateOf(SoundCloudClient.connectedUsername ?: "") }
-
-    var isSoundCloudLoading by remember { mutableStateOf(false)}
-
-    var soundCloudError by remember { mutableStateOf<String?>(null) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-    ) {
-        Text(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Text(
             text = "Profile",
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.SemiBold
@@ -197,7 +187,7 @@ fun ProfileScreen(padding: PaddingValues) {
 
                 if (isSoundCloudConnected) {
                     Text(
-                        text = "Profile: @${SoundCloudClient.connectedUsername}",
+                        text = "Profile: @${SoundCloudClient.currentUser?.username.orEmpty()}",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -205,74 +195,20 @@ fun ProfileScreen(padding: PaddingValues) {
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedButton(
                         onClick = {
-                            SoundCloudClient.connectedUsername = null
+                            SoundCloudAuthManager.logout()
                             isSoundCloudConnected = false
-                            soundCloudInput = ""
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Disconnect profile", color = MaterialTheme.colorScheme.error)
                     }
                 } else {
-                    OutlinedTextField(
-                        value = soundCloudInput,
-                        onValueChange = {
-                            soundCloudInput = it
-                            soundCloudError = null
+                    SoundCloudLoginButton(
+                        onLoginSuccess = {
+                            isSoundCloudConnected = true
                         },
-                        placeholder = { Text("Nickname or profile url")},
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = soundCloudError != null,
-                        supportingText = {
-                            soundCloudError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-                        }
+                        notificationController = notificationController
                     )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(
-                        onClick = {
-                            if (soundCloudInput.isNotBlank()){
-                                coroutineScope.launch {
-                                    isSoundCloudLoading = true
-                                    soundCloudError = null
-                                    try{
-                                        val url = if (soundCloudInput.startsWith("http")){
-                                            soundCloudInput
-                                        } else {
-                                            "https://soundcloud.com/$soundCloudInput"
-                                        }
-
-                                        val user = SoundCloudClient.api.resolveUser(url)
-
-                                        SoundCloudClient.connectedUsername = user.username
-                                        isSoundCloudConnected = true
-                                    } catch (e: Exception){
-                                        soundCloudError = "Profile not found"
-                                    } finally {
-                                        isSoundCloudLoading = false
-                                    }
-                                }
-                            }
-                        },
-                        enabled = !isSoundCloudLoading && soundCloudInput.isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(containerColor = WaveifyRed,
-                            disabledContentColor = DarkSurfaceVariant
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        if (isSoundCloudLoading){
-                            CircularProgressIndicator(
-                                color = Color.White,
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text("Connect profile", color = Color.White)
-                        }
-                    }
                 }
             }
         }
@@ -407,4 +343,12 @@ fun ProfileScreen(padding: PaddingValues) {
                 .verticalScroll(rememberScrollState())
         ) { }
     }
+
+    NotificationBanner(
+        controller = notificationController,
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .padding(top = padding.calculateTopPadding() + 5.dp)
+    )
+}
 }

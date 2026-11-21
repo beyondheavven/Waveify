@@ -2,6 +2,7 @@ package com.beyondheavven.waveify.ui.screen.home.card
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,13 +34,15 @@ fun ConnectServiceCard(
     serviceName: String,
     serviceColor: Color,
     description: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ){
     Card(
         modifier = modifier
             .fillMaxWidth()
             .height(72.dp)
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, DividerColor),
         colors = CardDefaults.cardColors(containerColor = DarkSurfaceElevated)

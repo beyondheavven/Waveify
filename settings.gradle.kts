@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Waveify"
 include(":app")
+include(":server")

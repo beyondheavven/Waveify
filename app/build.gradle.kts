@@ -1,6 +1,3 @@
-import java.io.FileInputStream
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -23,27 +20,34 @@ android {
         manifestPlaceholders["redirectSchemeName"] = "waveify"
         manifestPlaceholders["redirectHostName"] = "callback"
 
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localProperties.load(FileInputStream(localPropertiesFile))
-        }
-
-        val spotifyClientId = localProperties.getProperty("SPOTIFY_CLIENT_ID") ?: ""
-        val spotifySecret = localProperties.getProperty("SPOTIFY_SECRET") ?: ""
-        val spotifyRedirectUri = localProperties.getProperty("SPOTIFY_REDIRECT_URI")?.takeIf { it.isNotBlank() } ?: "waveify://callback"
-        val spotifyBaseUrl = localProperties.getProperty("SPOTIFY_BASE_URL")?.takeIf { it.isNotBlank() } ?: "https://api.spotify.com/"
-        val soundcloudBaseUrl = localProperties.getProperty("SOUNDCLOUD_BASE_URL")?.takeIf { it.isNotBlank() } ?: "https://api-v2.soundcloud.com/"
-        val soundcloudClientId = localProperties.getProperty("SOUNDCLOUD_CLIENT_ID") ?: ""
-        val accountsBaseUrl = localProperties.getProperty("ACCOUNTS_BASE_URL")?.takeIf { it.isNotBlank() } ?: "https://accounts.spotify.com/"
+        val spotifyClientId = System.getenv("SPOTIFY_CLIENT_ID")?.takeIf { it.isNotBlank() }
+            ?: "958af1c2daa4465a94e6926323e27d6a"
+        val spotifyRedirectUri = System.getenv("SPOTIFY_REDIRECT_URI")?.takeIf { it.isNotBlank() }
+            ?: "waveify://callback"
+        val spotifyBaseUrl = System.getenv("SPOTIFY_BASE_URL")?.takeIf { it.isNotBlank() }
+            ?: "https://api.spotify.com/"
+        val soundcloudBaseUrl = System.getenv("SOUNDCLOUD_BASE_URL")?.takeIf { it.isNotBlank() }
+            ?: "https://api-v2.soundcloud.com/"
+        val soundcloudClientId = System.getenv("SOUNDCLOUD_CLIENT_ID")?.takeIf { it.isNotBlank() }
+            ?: "QhVEWrrJKvW4uSU5u5EoI0FTXYUGzy5k"
+        val soundcloudAuthorizeUrl = System.getenv("SOUNDCLOUD_AUTHORIZE_URL")?.takeIf { it.isNotBlank() }
+            ?: "https://secure.soundcloud.com/authorize"
+        val soundcloudRedirectUri = System.getenv("SOUNDCLOUD_REDIRECT_URI")?.takeIf { it.isNotBlank() }
+            ?: "waveify://soundcloud/callback"
+        val soundcloudAuthBaseUrl = System.getenv("SOUNDCLOUD_AUTH_BASE_URL")?.takeIf { it.isNotBlank() }
+            ?: "http://10.0.2.2:8080/"
+        val accountsBaseUrl = System.getenv("ACCOUNTS_BASE_URL")?.takeIf { it.isNotBlank() }
+            ?: "https://accounts.spotify.com/"
 
 
         buildConfigField("String", "SPOTIFY_CLIENT_ID", "\"$spotifyClientId\"")
-        buildConfigField("String", "SPOTIFY_SECRET", "\"$spotifySecret\"")
         buildConfigField("String", "SPOTIFY_REDIRECT_URI", "\"$spotifyRedirectUri\"")
         buildConfigField("String", "SPOTIFY_BASE_URL", "\"$spotifyBaseUrl\"")
         buildConfigField("String", "SOUNDCLOUD_BASE_URL", "\"$soundcloudBaseUrl\"")
         buildConfigField("String", "SOUNDCLOUD_CLIENT_ID", "\"$soundcloudClientId\"")
+        buildConfigField("String", "SOUNDCLOUD_AUTHORIZE_URL", "\"$soundcloudAuthorizeUrl\"")
+        buildConfigField("String", "SOUNDCLOUD_REDIRECT_URI", "\"$soundcloudRedirectUri\"")
+        buildConfigField("String", "SOUNDCLOUD_AUTH_BASE_URL", "\"$soundcloudAuthBaseUrl\"")
         buildConfigField("String", "ACCOUNTS_BASE_URL", "\"$accountsBaseUrl\"")
     }
 

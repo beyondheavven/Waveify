@@ -1,5 +1,6 @@
 package com.beyondheavven.waveify.ui.screen.home
 
+import android.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,6 +35,7 @@ import com.beyondheavven.waveify.ui.theme.WaveifyRed
 fun HomeScreen(
     padding: PaddingValues,
     onNavigateToLibrary: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -54,7 +56,7 @@ fun HomeScreen(
         Text(
             text = "Waveify",
             style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(horizontal = 20.dp)
         )
 
@@ -96,7 +98,8 @@ fun HomeScreen(
                     serviceName = "Spotify",
                     serviceColor = StatusSuccess,
                     description = "Connect Spotify to discover new releases and playlists.",
-                    modifier = Modifier.padding(horizontal = 20.dp)
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    onClick = onNavigateToProfile
                 )
             }
 
@@ -119,8 +122,9 @@ fun HomeScreen(
                 ConnectServiceCard(
                     serviceName = "SoundCloud",
                     serviceColor = Color(0xFFFF5500),
-                    description = "Please enter SoundCloud account.",
-                    modifier = Modifier.padding(horizontal = 20.dp)
+                    description = "Connect SoundCloud to see trending tracks.",
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    onClick = onNavigateToProfile
                 )
             }
 

@@ -1,6 +1,5 @@
 package com.beyondheavven.waveify.ui.oscilloscope
 
-import android.icu.number.IntegerWidth
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -23,14 +22,13 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.beyondheavven.waveify.ui.theme.WaveifyRed
 import kotlin.math.sin
 
 @Composable
 fun OscilloscopeWave(
     isPlaying: Boolean,
     modifier: Modifier = Modifier,
-    waveColor: Color = WaveifyRed,
+    waveColor: Color = Color.White,
     strokeWidth: Dp = 1.5.dp,
     maxAmplitude: Float = 6f
 ) {

@@ -1,18 +1,5 @@
 ## Waveify - Configuration Template
-## Copy this file to 'local.properties' and fill in your credentials.
+## Copy this file to 'local.properties'. Only the Android SDK path is needed locally.
 
 # Android SDK path (automatically configured by Android Studio)
 # sdk.dir=C\:\\Users\\<username>\\AppData\\Local\\Android\\Sdk
-
-# Spotify API Configuration
-# Register your app at: https://developer.spotify.com/dashboard
-SPOTIFY_CLIENT_ID=your_spotify_client_id_here
-SPOTIFY_SECRET=your_spotify_client_secret_here
-SPOTIFY_REDIRECT_URI=waveify://callback
-SPOTIFY_BASE_URL=https://api.spotify.com/
-ACCOUNTS_BASE_URL=https://accounts.spotify.com/
-
-# SoundCloud API Configuration
-# Extract client_id from Network tab on https://soundcloud.com
-SOUNDCLOUD_CLIENT_ID=your_soundcloud_client_id_here
-SOUNDCLOUD_BASE_URL=https://api-v2.soundcloud.com/
