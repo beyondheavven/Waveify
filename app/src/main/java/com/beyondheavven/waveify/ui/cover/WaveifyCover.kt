@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -17,8 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.beyondheavven.waveify.ui.theme.DarkSurfaceVariant
-import com.beyondheavven.waveify.ui.theme.TextMuted
+import com.beyondheavven.waveify.ui.theme.WaveifyColors
 
 enum class CoverSize(val columns: Int) {
     SMALL(columns = 28),
@@ -33,27 +33,27 @@ fun WaveifyCover(
     size: CoverSize = CoverSize.MEDIUM,
     shape: Shape = RoundedCornerShape(8.dp),
     contentDescription: String? = null
-){
+) {
     val context = LocalContext.current
+    val palette = WaveifyColors.current
 
     if (coverUrl.isNullOrEmpty()) {
         Box(
             modifier = modifier
                 .clip(shape)
-                .background(DarkSurfaceVariant),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.MusicNote,
                 contentDescription = null,
-                tint = TextMuted
+                tint = palette.muted
             )
         }
-
         return
     }
 
-    val imageRequest = remember(coverUrl, AsciiSettings.isEnabled, AsciiSettings.currentMode, shape) {
+    val imageRequest = remember(coverUrl, size, AsciiSettings.isEnabled, AsciiSettings.currentMode) {
         ImageRequest.Builder(context)
             .data(coverUrl)
             .apply {
@@ -76,5 +76,4 @@ fun WaveifyCover(
         modifier = modifier.clip(shape),
         contentScale = ContentScale.Crop
     )
-
 }

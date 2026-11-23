@@ -24,10 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
-import com.beyondheavven.waveify.ui.theme.DividerColor
-import com.beyondheavven.waveify.ui.theme.TextMuted
-import com.beyondheavven.waveify.ui.theme.TextPrimary
+import com.beyondheavven.waveify.ui.theme.WaveifyColors
 
 @Composable
 fun ConnectServiceCard(
@@ -36,57 +33,55 @@ fun ConnectServiceCard(
     description: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
-){
+) {
+    val palette = WaveifyColors.current
+
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(72.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .height(76.dp)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, DividerColor),
-        colors = CardDefaults.cardColors(containerColor = DarkSurfaceElevated)
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(1.dp, palette.subtleBorder),
+        colors = CardDefaults.cardColors(containerColor = palette.elevatedSurface)
     ) {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 10.dp),
+                .padding(horizontal = 14.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
                     .size(44.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(serviceColor.copy(alpha = 0.15f)),
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(serviceColor.copy(alpha = if (palette.isDark) 0.18f else 0.10f)),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Box(
                     modifier = Modifier
-                        .size(16.dp)
+                        .size(14.dp)
                         .background(serviceColor, CircleShape)
                 )
             }
 
             Spacer(modifier = Modifier.size(14.dp))
 
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Connected $serviceName",
+                    text = "Connect $serviceName",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextMuted
+                    color = palette.muted,
+                    maxLines = 1
                 )
             }
         }
     }
-
 }

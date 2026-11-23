@@ -50,18 +50,14 @@ object SpotifyClient {
         .build()
         .create(SpotifyAuthService::class.java)
 
-    suspend fun exchangeCodeForToken(code: String, codeVerifier: String): Boolean {
-        return try {
-            val response = authApi.exchangeCode(
-                code = code,
-                redirectUri = BuildConfig.SPOTIFY_REDIRECT_URI,
-                codeVerifier = codeVerifier
-            )
-            accessToken = response.accessToken
-            refreshToken = response.refreshToken
-            true
-        } catch (e: Exception) {
-            false
-        }
+    suspend fun exchangeCodeForToken(code: String, codeVerifier: String) {
+        val response = authApi.exchangeCode(
+            clientId = CLIENT_ID,
+            code = code,
+            redirectUri = BuildConfig.SPOTIFY_REDIRECT_URI,
+            codeVerifier = codeVerifier
+        )
+        accessToken = response.accessToken
+        refreshToken = response.refreshToken
     }
 }

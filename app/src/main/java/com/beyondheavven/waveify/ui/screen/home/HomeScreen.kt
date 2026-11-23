@@ -1,6 +1,5 @@
 package com.beyondheavven.waveify.ui.screen.home
 
-import android.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,18 +17,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.beyondheavven.waveify.data.model.HomeItemUiModel
 import com.beyondheavven.waveify.data.model.toTrackUiModel
 import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
 import com.beyondheavven.waveify.ui.screen.home.card.ConnectServiceCard
 import com.beyondheavven.waveify.ui.screen.home.card.FavouriteTracksCard
 import com.beyondheavven.waveify.ui.screen.home.carousel.HomeCarouselSection
-import com.beyondheavven.waveify.ui.theme.StatusSuccess
-import com.beyondheavven.waveify.ui.theme.WaveifyRed
+import com.beyondheavven.waveify.ui.theme.WaveifyColors
 
 @Composable
 fun HomeScreen(
@@ -40,174 +37,154 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val uiState = viewModel.uiState
-    val scrollState = rememberScrollState()
+    val palette = WaveifyColors.current
 
     LaunchedEffect(Unit) {
         viewModel.loadFeed()
+    }
+
+    val play: (HomeItemUiModel, List<HomeItemUiModel>) -> Unit = { item, items ->
+        WaveifyPlayer.play(
+            item.toTrackUiModel(),
+            items.map { it.toTrackUiModel() },
+            context
+        )
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .verticalScroll(scrollState)
-            .padding(vertical = 16.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp)
     ) {
+        Spacer(modifier = Modifier.height(24.dp))
+
         Text(
-            text = "Waveify",
+            text = "waveify.",
             style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "Your music, one place.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = palette.muted
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 
         FavouriteTracksCard(
             isLoggedIn = uiState.isSpotifyConnected,
             onClick = onNavigateToLibrary,
-            onPlayClick = onNavigateToLibrary,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            onPlayClick = onNavigateToLibrary
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         if (uiState.isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
+                    .height(220.dp),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = WaveifyRed)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else {
             if (uiState.isSpotifyConnected) {
                 HomeCarouselSection(
-                    title = "On Your Repeat",
+                    title = "On your repeat",
                     sourceName = "Spotify",
-                    sourceColor = StatusSuccess,
+                    sourceColor = palette.spotify,
                     items = uiState.spotifyTopTracks,
-                    onItemClick = { item ->
-                        val track = item.toTrackUiModel()
-                        val playlist = uiState.spotifyTopTracks.map { it.toTrackUiModel() }
-                        WaveifyPlayer.play(track, playlist, context)
-                    }
+                    onItemClick = { item -> play(item, uiState.spotifyTopTracks) }
                 )
             } else {
                 ConnectServiceCard(
                     serviceName = "Spotify",
-                    serviceColor = StatusSuccess,
-                    description = "Connect Spotify to discover new releases and playlists.",
-                    modifier = Modifier.padding(horizontal = 20.dp),
+                    serviceColor = palette.spotify,
+                    description = "Connect to see your top tracks and playlists.",
                     onClick = onNavigateToProfile
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             if (uiState.isSoundCloudConnected) {
                 HomeCarouselSection(
                     title = "Trending",
                     sourceName = "SoundCloud",
-                    sourceColor = Color(0xFFFF5500),
+                    sourceColor = palette.soundcloud,
                     items = uiState.soundCloudTrending,
-                    onItemClick = { item ->
-                        val track = item.toTrackUiModel()
-                        val playlist = uiState.soundCloudTrending.map { it.toTrackUiModel() }
-                        WaveifyPlayer.play(track, playlist, context)
-                    }
-
+                    onItemClick = { item -> play(item, uiState.soundCloudTrending) }
                 )
             } else {
                 ConnectServiceCard(
                     serviceName = "SoundCloud",
-                    serviceColor = Color(0xFFFF5500),
-                    description = "Connect SoundCloud to see trending tracks.",
-                    modifier = Modifier.padding(horizontal = 20.dp),
+                    serviceColor = palette.soundcloud,
+                    description = "Connect to explore trending tracks.",
                     onClick = onNavigateToProfile
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             if (uiState.isSpotifyConnected && uiState.spotifyNewReleases.isNotEmpty()) {
                 HomeCarouselSection(
-                    title = "New Releases",
+                    title = "New releases",
                     sourceName = "Spotify",
-                    sourceColor = StatusSuccess,
+                    sourceColor = palette.spotify,
                     items = uiState.spotifyNewReleases,
-                    onItemClick = { item ->
-                        val track = item.toTrackUiModel()
-                        val playlist = uiState.soundCloudHipHop.map { it.toTrackUiModel() }
-                        WaveifyPlayer.play(track, playlist, context)
-                    }
+                    onItemClick = { item -> play(item, uiState.spotifyNewReleases) }
                 )
+                Spacer(modifier = Modifier.height(32.dp))
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             if (uiState.isSpotifyConnected && uiState.spotifyUserPlaylists.isNotEmpty()) {
                 HomeCarouselSection(
-                    title = "Playlists & Mixes",
+                    title = "Playlists & mixes",
                     sourceName = "Spotify",
-                    sourceColor = StatusSuccess,
+                    sourceColor = palette.spotify,
                     items = uiState.spotifyUserPlaylists,
-                    onItemClick = { item ->
-                        val track = item.toTrackUiModel()
-                        val playlist = uiState.spotifyUserPlaylists.map { it.toTrackUiModel() }
-                        WaveifyPlayer.play(track, playlist, context)
-                    }
+                    onItemClick = { item -> play(item, uiState.spotifyUserPlaylists) }
                 )
+                Spacer(modifier = Modifier.height(32.dp))
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             if (uiState.isSpotifyConnected && uiState.spotifyArtistsTracks.isNotEmpty()) {
                 HomeCarouselSection(
-                    title = "Favourite Artists",
+                    title = "Favourite artists",
                     sourceName = "Spotify",
-                    sourceColor = StatusSuccess,
+                    sourceColor = palette.spotify,
                     items = uiState.spotifyArtistsTracks,
-                    onItemClick = { item ->
-                        val track = item.toTrackUiModel()
-                        val playlist = uiState.spotifyArtistsTracks.map { it.toTrackUiModel() }
-                        WaveifyPlayer.play(track, playlist, context)
-                    }
+                    onItemClick = { item -> play(item, uiState.spotifyArtistsTracks) }
                 )
+                Spacer(modifier = Modifier.height(32.dp))
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             if (uiState.isSpotifyConnected && uiState.spotifyFeaturedPlaylists.isNotEmpty()) {
                 HomeCarouselSection(
-                    title = "Featured Playlists",
+                    title = "Featured playlists",
                     sourceName = "Spotify",
-                    sourceColor = StatusSuccess,
+                    sourceColor = palette.spotify,
                     items = uiState.spotifyFeaturedPlaylists,
-                    onItemClick = { item ->
-                        val track = item.toTrackUiModel()
-                        val playlist = uiState.spotifyFeaturedPlaylists.map { it.toTrackUiModel() }
-                        WaveifyPlayer.play(track, playlist, context)
-                    }
+                    onItemClick = { item -> play(item, uiState.spotifyFeaturedPlaylists) }
                 )
+                Spacer(modifier = Modifier.height(32.dp))
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             if (uiState.isSoundCloudConnected && uiState.soundCloudHipHop.isNotEmpty()) {
                 HomeCarouselSection(
-                    title = "Hip-hop & Rap",
+                    title = "Hip-hop & rap",
                     sourceName = "SoundCloud",
-                    sourceColor = Color(0xFFFF5500),
+                    sourceColor = palette.soundcloud,
                     items = uiState.soundCloudHipHop,
-                    onItemClick = { item ->
-                        val track = item.toTrackUiModel()
-                        val playlist = uiState.soundCloudHipHop.map { it.toTrackUiModel() }
-                        WaveifyPlayer.play(track, playlist, context)
-                    }
+                    onItemClick = { item -> play(item, uiState.soundCloudHipHop) }
                 )
             }
-            Spacer(modifier = Modifier.height(60.dp))
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }

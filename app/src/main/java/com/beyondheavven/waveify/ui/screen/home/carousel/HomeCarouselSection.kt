@@ -25,9 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.model.HomeItemUiModel
-import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.ui.screen.home.card.HomeTrackCard
-import com.beyondheavven.waveify.ui.theme.TextPrimary
 
 @Composable
 fun HomeCarouselSection(
@@ -40,57 +38,47 @@ fun HomeCarouselSection(
 ) {
     if (items.isEmpty()) return
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(sourceColor, CircleShape)
-                )
-
-                Spacer(modifier = Modifier.size(8.dp))
-
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary
-                )
-            }
-
+            Box(
+                modifier = Modifier
+                    .size(7.dp)
+                    .background(sourceColor, CircleShape)
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(sourceColor.copy(alpha = 0.15f))
+                    .background(sourceColor.copy(alpha = 0.12f))
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
                     text = sourceName,
                     style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Medium,
                     color = sourceColor
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+            contentPadding = PaddingValues(end = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(items, key = { it.id }) { item ->
-                HomeTrackCard(
-                    item = item,
-                    onClick = { onItemClick(item)}
-                )
+                HomeTrackCard(item = item, onClick = { onItemClick(item) })
             }
         }
     }

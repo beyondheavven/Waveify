@@ -10,6 +10,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -27,8 +28,8 @@ import kotlin.math.sin
 @Composable
 fun OscilloscopeWave(
     isPlaying: Boolean,
-    modifier: Modifier = Modifier,
-    waveColor: Color = Color.White,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    waveColor: Color = MaterialTheme.colorScheme.primary,
     strokeWidth: Dp = 1.5.dp,
     maxAmplitude: Float = 6f
 ) {
@@ -54,9 +55,7 @@ fun OscilloscopeWave(
     )
 
     Canvas(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(18.dp)
+        modifier = modifier.height(18.dp)
     ) {
         val width = size.width
         val centerY = size.height / 2f

@@ -14,6 +14,7 @@ class SpotifyAuthCallbackActivity : Activity() {
             code = uri?.getQueryParameter("code"),
             state = uri?.getQueryParameter("state"),
             error = uri?.getQueryParameter("error"),
+            errorDescription = uri?.getQueryParameter("error_description"),
             onComplete = { finish() }
         )
     }

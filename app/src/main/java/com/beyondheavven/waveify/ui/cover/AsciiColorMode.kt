@@ -2,8 +2,6 @@ package com.beyondheavven.waveify.ui.cover
 
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import com.beyondheavven.waveify.ui.theme.StatusSuccess
-import com.beyondheavven.waveify.ui.theme.TextPrimary
 import com.beyondheavven.waveify.ui.theme.WaveifyRed
 
 enum class AsciiColorMode(
@@ -29,10 +27,10 @@ enum class AsciiColorMode(
     ),
     GREEN_MATRIX(
         title = "Matrix",
-        indicatorColor = StatusSuccess
+        indicatorColor = Color(0xFF22C55E)
     ),
     MONOCHROME(
         title = "Mono",
-        indicatorColor = TextPrimary
+        indicatorColor = Color(0xFFA1A1AA)
     )
 }

@@ -1,6 +1,5 @@
 package com.beyondheavven.waveify.ui.screen.home.card
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,18 +28,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
-import com.beyondheavven.waveify.ui.theme.DividerColor
-import com.beyondheavven.waveify.ui.theme.TextMuted
-import com.beyondheavven.waveify.ui.theme.TextPrimary
-import com.beyondheavven.waveify.ui.theme.WaveifyRed
-import com.beyondheavven.waveify.ui.theme.WaveifyRedDark
-
+import com.beyondheavven.waveify.ui.theme.WaveifyColors
 
 @Composable
 fun FavouriteTracksCard(
@@ -49,78 +39,76 @@ fun FavouriteTracksCard(
     onClick: () -> Unit,
     onPlayClick: () -> Unit,
     modifier: Modifier = Modifier
-){
+) {
+    val palette = WaveifyColors.current
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(72.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .clickable { onClick()},
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, DividerColor),
-        colors = CardDefaults.cardColors(containerColor = DarkSurfaceElevated)
+            .height(76.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(1.dp, palette.subtleBorder),
+        colors = CardDefaults.cardColors(containerColor = palette.elevatedSurface)
     ) {
-            Row(
-                modifier = Modifier.fillMaxSize()
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(WaveifyRed.copy(alpha = 0.12f)),
-                    contentAlignment = Alignment.Center
-                ){
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = "Favourite tracks",
-                        tint = WaveifyRed,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Favourite tracks",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(21.dp)
+                )
+            }
 
-                Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Favourite tracks",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = if (isLoggedIn) {
-                            if (trackCount > 0) "$trackCount tracks" else "Spotify Library"
-                        } else {
-                            "Connect to view"
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted
-                    )
-                }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Favourite tracks",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = if (isLoggedIn) {
+                        if (trackCount > 0) "$trackCount tracks" else "Spotify library"
+                    } else {
+                        "Connect to view"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = palette.muted
+                )
+            }
 
-                Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(10.dp))
 
-                IconButton(
-                    onClick = onPlayClick,
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Listen all",
-                        tint = Color.Black,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
+            IconButton(
+                onClick = onPlayClick,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = "Listen all",
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(22.dp)
+                )
             }
         }
-
+    }
 }

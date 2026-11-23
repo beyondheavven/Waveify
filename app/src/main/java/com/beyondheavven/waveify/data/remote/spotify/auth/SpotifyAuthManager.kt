@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
 import com.beyondheavven.waveify.BuildConfig
+import com.beyondheavven.waveify.data.remote.oauth.AuthErrorParser
 import com.beyondheavven.waveify.data.remote.oauth.PkceUtils
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import kotlinx.coroutines.CoroutineScope
@@ -84,10 +85,11 @@ object SpotifyAuthManager {
         code: String?,
         state: String?,
         error: String?,
+        errorDescription: String?,
         onComplete: () -> Unit
     ) {
         if (error != null) {
-            notifyError(error)
+            notifyError(errorDescription ?: error)
             onComplete()
             return
         }
@@ -129,18 +131,14 @@ object SpotifyAuthManager {
     private fun exchangeCodeForToken(code: String, codeVerifier: String, onComplete: () -> Unit) {
         scope.launch {
             try {
-                val success = SpotifyClient.exchangeCodeForToken(code, codeVerifier)
-                if (success) {
-                    Log.d(TAG, "Authorization is successful! Access token obtained")
-                    isAuthorized = true
-                    _authEvents.emit(AuthEvent.Success)
-                } else {
-                    Log.e(TAG, "Failed to exchange code for token.")
-                    _authEvents.emit(AuthEvent.Error("Failed to obtain token"))
-                }
+                SpotifyClient.exchangeCodeForToken(code, codeVerifier)
+                Log.d(TAG, "Authorization is successful! Access token obtained")
+                isAuthorized = true
+                _authEvents.emit(AuthEvent.Success)
             } catch (e: Exception) {
-                Log.e(TAG, "Error occurred ${e.message}")
-                _authEvents.emit(AuthEvent.Error(e.message ?: "Authentication error"))
+                val message = AuthErrorParser.message(e)
+                Log.e(TAG, "Failed to exchange code for token: $message")
+                _authEvents.emit(AuthEvent.Error(message))
             } finally {
                 onComplete()
             }

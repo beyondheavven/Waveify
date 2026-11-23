@@ -114,11 +114,11 @@ sdk.dir=C\:\\Users\\<username>\\AppData\\Local\\Android\\Sdk
 
 Публичные значения — Spotify client ID, redirect URI, base URLs и SoundCloud client ID — заданы дефолтами в `app/build.gradle.kts`. При необходимости их можно переопределить переменными окружения: `SPOTIFY_CLIENT_ID`, `SPOTIFY_REDIRECT_URI`, `SPOTIFY_BASE_URL`, `ACCOUNTS_BASE_URL`, `SOUNDCLOUD_CLIENT_ID`, `SOUNDCLOUD_BASE_URL`, `SOUNDCLOUD_AUTHORIZE_URL`, `SOUNDCLOUD_REDIRECT_URI`, `SOUNDCLOUD_AUTH_BASE_URL`.
 
-Redirect URI, зарегистрированные у провайдеров:
-- Spotify: `waveify://callback`
-- SoundCloud: `waveify://soundcloud/callback`
+Redirect URI:
+- Spotify: `waveify://callback` — зарегистрирован в Spotify Dashboard.
+- SoundCloud: `waveify://soundcloud/callback` — наш собственный custom scheme по образцу `my-app://soundcloud/callback` из доков SoundCloud; его нужно зарегистрировать в Your Apps.
 
-Секретов в APK нет. Spotify использует OAuth 2.0 Authorization Code + PKCE напрямую. SoundCloud использует PKCE, но обмен кода требует `client_secret`, поэтому он идёт через модуль `:server`.
+Секретов в APK нет. Spotify использует OAuth 2.0 Authorization Code + PKCE напрямую. SoundCloud использует PKCE, но обмен кода требует `client_secret`, поэтому он идёт через модуль `:server`. Для SoundCloud `SOUNDCLOUD_CLIENT_ID` должен быть одинаковым в приложении и на сервере; дефолтный публичный client ID soundcloud.com для OAuth не подходит.
 
 ### 4. Backend для SoundCloud OAuth
 

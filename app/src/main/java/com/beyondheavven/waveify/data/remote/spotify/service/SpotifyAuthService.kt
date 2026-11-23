@@ -12,6 +12,9 @@ interface SpotifyAuthService {
         @Field("grant_type")
         grantType: String = "authorization_code",
 
+        @Field("client_id")
+        clientId: String,
+
         @Field("code")
         code: String,
 

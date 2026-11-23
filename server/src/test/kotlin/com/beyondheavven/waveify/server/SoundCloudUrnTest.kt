@@ -1,5 +1,6 @@
 package com.beyondheavven.waveify.server
 
+import com.beyondheavven.waveify.server.util.userIdFromUrn
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
