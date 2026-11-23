@@ -6,10 +6,10 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -74,6 +73,7 @@ fun MiniPlayer(
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = 10.dp, end = 8.dp, top = 8.dp, bottom = 2.dp)
@@ -84,8 +84,6 @@ fun MiniPlayer(
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.size(40.dp)
                         )
-
-                        Spacer(modifier = Modifier.width(10.dp))
 
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
@@ -105,24 +103,21 @@ fun MiniPlayer(
                             )
                         }
 
-                        Spacer(modifier = Modifier.width(8.dp))
-
                         OscilloscopeWave(
                             isPlaying = WaveifyPlayer.isPlaying,
                             waveColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.55f),
                             strokeWidth = 1.2.dp,
                             maxAmplitude = 4f,
-                            modifier = Modifier.width(36.dp)
+                            modifier = Modifier.width(28.dp)
                         )
 
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        IconButton(
-                            onClick = { WaveifyPlayer.togglePlayPause() },
+                        Box(
                             modifier = Modifier
                                 .size(32.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary)
+                                .clickable { WaveifyPlayer.togglePlayPause() },
+                            contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = if (WaveifyPlayer.isPlaying) {
@@ -132,7 +127,7 @@ fun MiniPlayer(
                                 },
                                 contentDescription = "Play/Pause",
                                 tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(17.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }

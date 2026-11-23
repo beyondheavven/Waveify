@@ -1,6 +1,5 @@
 package com.beyondheavven.waveify.core.ui.oscilloscope
 
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
@@ -9,7 +8,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -32,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.core.model.TrackSource
 import com.beyondheavven.waveify.theme.WaveifyColors
 import kotlin.math.sin
-import kotlin.random.Random
+import kotlin.math.sqrt
 
 @Composable
 fun WaveifyOscilloscope(
@@ -44,34 +43,46 @@ fun WaveifyOscilloscope(
     gridColor: Color = WaveifyColors.current.waveGrid,
     backgroundColor: Color = WaveifyColors.current.waveBackground
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "synthTransition")
-    val phase by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 2f * Math.PI.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 800, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "phase"
-    )
-    val beatKick by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 2.4f,
+    val realLevel = remember(realWaveData) {
+        if (realWaveData == null || realWaveData.isEmpty()) {
+            0f
+        } else {
+            var sum = 0L
+            for (byte in realWaveData) {
+                val sample = (byte.toInt() and 0xFF) - 128
+                sum += sample * sample
+            }
+            (sqrt(sum / realWaveData.size.toFloat()) / 64f).coerceIn(0f, 1f)
+        }
+    }
+    val hasRealLevel = source == TrackSource.SOUNDCLOUD && realLevel > 0.01f
+    val infiniteTransition = rememberInfiniteTransition(label = "oscilloscopePulse")
+    val beatPulse = infiniteTransition.animateFloat(
+        initialValue = 0.75f,
+        targetValue = 0.75f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
-                durationMillis = 480
-                1f at 0
-                2.4f at 80
-                1.3f at 180
-                1f at 480
+                durationMillis = 500
+                0.75f at 0
+                1.35f at 45
+                0.95f at 150
+                0.75f at 500
             },
             repeatMode = RepeatMode.Restart
         ),
-        label = "beatKick"
+        label = "beatPulse"
     )
-    val activeScale by animateFloatAsState(
+    val waveLevel = animateFloatAsState(
+        targetValue = if (hasRealLevel && isPlaying) realLevel else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = 260f
+        ),
+        label = "waveLevel"
+    )
+    val activeScale = animateFloatAsState(
         targetValue = if (isPlaying) 1f else 0f,
-        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "activeScale"
     )
     Box(
@@ -97,31 +108,26 @@ fun WaveifyOscilloscope(
             }
             drawLine(gridColor.copy(alpha = 0.8f), Offset(0f, centerY), Offset(width, centerY), strokeWidth = 1.5f)
             val path = Path()
-            val isSoundCloud = source == TrackSource.SOUNDCLOUD && realWaveData != null && realWaveData.isNotEmpty()
-            if (isSoundCloud) {
-                val sliceWidth = width / realWaveData!!.size.toFloat()
-                var x = 0f
-                val gain = 1.8f * activeScale
-                for (i in realWaveData.indices) {
-                    val rawSample = (realWaveData[i].toInt() and 0xFF) - 128
-                    val sample = rawSample * gain
-                    val y = (centerY + sample).coerceIn(4f, height - 4f)
-                    if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
-                    x += sliceWidth
-                }
+            val points = 72
+            val step = width / points
+            val pulse = if (hasRealLevel) {
+                0.6f + waveLevel.value * 1.1f
             } else {
-                val points = 80
-                val step = width / points
-                var x = 0f
-                path.moveTo(0f, centerY)
-                for (i in 0..points) {
-                    val normX = i.toFloat() / points
-                    val noise = if (isPlaying) (Random.nextFloat() - 0.5f) * 4f else 0f
-                    val wave = sin(normX * 16f * Math.PI.toFloat() + phase) * 12f * beatKick * activeScale
-                    val y = (centerY + wave + noise).coerceIn(4f, height - 4f)
-                    path.lineTo(x, y)
-                    x += step
-                }
+                0.75f + beatPulse.value * 0.45f
+            }
+            val amplitude = 13f * pulse * activeScale.value
+            var x = 0f
+            path.moveTo(0f, centerY)
+            for (i in 0..points) {
+                val normX = i.toFloat() / points
+                val envelope = sin(normX * Math.PI.toFloat())
+                val harmonic =
+                    sin(normX * 12f * Math.PI.toFloat()) * 0.62f +
+                        sin(normX * 26f * Math.PI.toFloat()) * 0.24f +
+                        sin(normX * 5f * Math.PI.toFloat()) * 0.14f
+                val y = (centerY + harmonic * envelope * amplitude).coerceIn(4f, height - 4f)
+                path.lineTo(x, y)
+                x += step
             }
             drawPath(
                 path = path,

@@ -6,6 +6,7 @@ import com.beyondheavven.waveify.data.soundcloud.models.SoundCloudSearchTracksRe
 import com.beyondheavven.waveify.data.soundcloud.models.SoundCloudStreamResponse
 import com.beyondheavven.waveify.data.soundcloud.models.SoundCloudUserModel
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
@@ -62,4 +63,32 @@ interface SoundCloudApiService {
         @Query("limit")
         limit: Int = 20
     ): SoundCloudSearchTracksResponse
+
+    @GET("search/tracks")
+    suspend fun searchPlaylists(
+
+        @Query(value = "q")
+        query: String,
+
+        @Query("showTracks")
+        showTracks: Boolean,
+
+        @Query("limit")
+        limit: Int = 20
+    )
+
+    @GET("search/users")
+    suspend fun searchUsers(
+
+        @Query("q")
+        query: String,
+
+        @Query("limit")
+        limit: Int = 20
+    )
+
+    @POST("/sign-out")
+    suspend fun signOut()
+
+
 }

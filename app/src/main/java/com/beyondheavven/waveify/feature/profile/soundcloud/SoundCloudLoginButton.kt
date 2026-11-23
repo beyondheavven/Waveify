@@ -93,7 +93,7 @@ fun SoundCloudLoginButton(
             text = {
                 Column {
                     Text(
-                        text = "Enter your SoundCloud nickname. The app will get a public client ID and load your profile — no paid developer app needed.",
+                        text = "Enter your SoundCloud nickname. The app will get a public client ID and load your profile.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
