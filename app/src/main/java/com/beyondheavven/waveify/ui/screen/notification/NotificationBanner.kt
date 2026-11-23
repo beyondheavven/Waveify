@@ -27,14 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.beyondheavven.waveify.ui.theme.DarkSurfaceElevated
-import com.beyondheavven.waveify.ui.theme.DividerColor
-import com.beyondheavven.waveify.ui.theme.StatusErrorBg
-import com.beyondheavven.waveify.ui.theme.StatusSuccess
-import com.beyondheavven.waveify.ui.theme.StatusSuccessBg
-import com.beyondheavven.waveify.ui.theme.TextPrimary
-import com.beyondheavven.waveify.ui.theme.WaveifyRed
-
+import com.beyondheavven.waveify.ui.theme.WaveifyColors
 
 private data class BannerStyle(
     val backgroundColor: Color,
@@ -42,12 +35,14 @@ private data class BannerStyle(
     val iconColor: Color,
     val borderColor: Color
 )
+
 @Composable
 fun NotificationBanner(
     controller: NotificationController,
     modifier: Modifier = Modifier
 ) {
     val notification = controller.currentNotification
+    val palette = WaveifyColors.current
 
     AnimatedVisibility(
         visible = notification != null,
@@ -58,53 +53,51 @@ fun NotificationBanner(
         if (notification != null) {
             val style = when (notification.type) {
                 NotificationState.SUCCESS -> BannerStyle(
-                    backgroundColor = StatusSuccessBg,
+                    backgroundColor = palette.successContainer,
                     icon = Icons.Default.CheckCircle,
-                    iconColor = StatusSuccess,
-                    borderColor = StatusSuccess.copy(alpha = 0.35f)
+                    iconColor = palette.success,
+                    borderColor = palette.success.copy(alpha = 0.25f)
                 )
 
                 NotificationState.ERROR -> BannerStyle(
-                    backgroundColor = StatusErrorBg,
+                    backgroundColor = palette.errorContainer,
                     icon = Icons.Default.Error,
-                    iconColor = WaveifyRed,
-                    borderColor = DividerColor
+                    iconColor = MaterialTheme.colorScheme.error,
+                    borderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
                 )
 
                 NotificationState.INFO -> BannerStyle(
-                    backgroundColor = DarkSurfaceElevated,
+                    backgroundColor = palette.infoContainer,
                     icon = Icons.Default.Notifications,
-                    iconColor = WaveifyRed,
-                    borderColor = WaveifyRed.copy(0.35f)
+                    iconColor = MaterialTheme.colorScheme.primary,
+                    borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                 )
             }
 
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                shape = RoundedCornerShape(12.dp),
+                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(14.dp),
                 color = style.backgroundColor,
                 border = BorderStroke(1.dp, style.borderColor),
-                shadowElevation = 8.dp
+                shadowElevation = 2.dp
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = style.icon,
                         contentDescription = null,
                         tint = style.iconColor,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(20.dp)
                     )
-                    Spacer(
-                        modifier = Modifier.width(12.dp)
-                    )
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = notification.message,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

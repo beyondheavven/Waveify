@@ -13,6 +13,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import com.beyondheavven.waveify.data.model.TrackUiModel
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
+import com.beyondheavven.waveify.player.visualizer.AudioPermissionManager
 import com.beyondheavven.waveify.player.visualizer.AudioWaveformTracker
 import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +31,8 @@ object SoundCloudPlayerManager {
         private set
 
     private var exoPlayer: ExoPlayer? = null
+
+    private var appContext: Context? = null
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -54,6 +57,7 @@ object SoundCloudPlayerManager {
 
         isLoadingSc = true
         currentTrackTitle = track.title
+        appContext = context.applicationContext
 
         scope.launch {
             try{
@@ -89,6 +93,7 @@ object SoundCloudPlayerManager {
                             if (duration > 0) {
                                 WaveifyPlayer.updateDuration(duration)
                             }
+                            appContext?.let { attachVisualizer(it) }
                         }
                     }
 
@@ -112,11 +117,15 @@ object SoundCloudPlayerManager {
         audioTracker.onWaveformUpdate = { data ->
             currentWaveform = data
         }
+    }
 
-        exoPlayer?.audioSessionId?.let { sessionId ->
+    @OptIn(UnstableApi::class)
+    private fun attachVisualizer(context: Context) {
+        AudioPermissionManager.request(context) { granted ->
+            if (!granted) return@request
+            val sessionId = exoPlayer?.audioSessionId ?: return@request
             audioTracker.attachTo(sessionId)
         }
-
     }
 
     fun pause() {
@@ -141,6 +150,7 @@ object SoundCloudPlayerManager {
         audioTracker.release()
         exoPlayer?.release()
         exoPlayer = null
+        appContext = null
         isPlayingSc = false
         currentWaveform = null
     }

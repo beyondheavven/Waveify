@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -45,97 +46,100 @@ import com.beyondheavven.waveify.player.waveify.WaveifyPlayer
 import com.beyondheavven.waveify.ui.cover.CoverSize
 import com.beyondheavven.waveify.ui.cover.WaveifyCover
 import com.beyondheavven.waveify.ui.oscilloscope.WaveifyOscilloscope
-import com.beyondheavven.waveify.ui.theme.DarkBackground
-import com.beyondheavven.waveify.ui.theme.DarkSurface
-import com.beyondheavven.waveify.ui.theme.DividerColor
-import com.beyondheavven.waveify.ui.theme.TextPrimary
-import com.beyondheavven.waveify.ui.theme.TextSecondary
-import com.beyondheavven.waveify.ui.theme.WaveifyRed
+import com.beyondheavven.waveify.ui.theme.WaveifyColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerModal(
     onDismiss: () -> Unit
-){
+) {
     val track = WaveifyPlayer.currentTrack ?: return
     val context = LocalContext.current
+    val palette = WaveifyColors.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = DarkBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         dragHandle = null
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            IconButton(
-                onClick = onDismiss,
-                modifier = Modifier.align(Alignment.Start)
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(width = 36.dp, height = 4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(palette.subtleBorder)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Close",
-                    tint = TextPrimary,
-                    modifier = Modifier.size(32.dp)
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Close",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = "NOW PLAYING",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = palette.muted
                 )
+                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.size(48.dp))
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.85f)
+                    .fillMaxWidth(0.82f)
                     .aspectRatio(1f)
-                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(24.dp), spotColor = WaveifyRed.copy(alpha = 0.35f))
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(DarkSurface)
+                    .shadow(
+                        elevation = 20.dp,
+                        shape = RoundedCornerShape(28.dp),
+                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+                    )
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 WaveifyCover(
                     coverUrl = track.coverUrl,
                     size = CoverSize.LARGE,
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(28.dp),
                     modifier = Modifier.fillMaxSize()
                 )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            WaveifyOscilloscope(
-                source = WaveifyPlayer.currentTrack?.source,
-                isPlaying = WaveifyPlayer.isPlaying,
-                realWaveData = SoundCloudPlayerManager.currentWaveform,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.Start
-            ){
+            Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = track.title,
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-
                 Spacer(modifier = Modifier.height(4.dp))
-
                 Text(
                     text = track.artist,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextSecondary,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = palette.muted,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -143,25 +147,30 @@ fun PlayerModal(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            WaveifyOscilloscope(
+                source = WaveifyPlayer.currentTrack?.source,
+                isPlaying = WaveifyPlayer.isPlaying,
+                realWaveData = SoundCloudPlayerManager.currentWaveform,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             val totalDuration = WaveifyPlayer.durationMs.coerceAtLeast(1L)
             val currentPos = WaveifyPlayer.displayPositionMs.coerceIn(0L, totalDuration)
 
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 Slider(
                     value = currentPos.toFloat(),
-                    onValueChange = { WaveifyPlayer.onScrub(it.toLong())},
+                    onValueChange = { WaveifyPlayer.onScrub(it.toLong()) },
                     onValueChangeFinished = { WaveifyPlayer.onScrubFinished() },
                     valueRange = 0f..totalDuration.toFloat(),
                     colors = SliderDefaults.colors(
-                        thumbColor = WaveifyRed,
-                        activeTrackColor = WaveifyRed,
-                        inactiveTrackColor = DividerColor
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                        thumbColor = MaterialTheme.colorScheme.primary,
+                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                        inactiveTrackColor = palette.waveGrid
+                    )
                 )
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -171,12 +180,12 @@ fun PlayerModal(
                     Text(
                         text = formatDuration(currentPos),
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
+                        color = palette.muted
                     )
                     Text(
                         text = formatDuration(totalDuration),
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
+                        color = palette.muted
                     )
                 }
             }
@@ -188,46 +197,47 @@ fun PlayerModal(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { WaveifyPlayer.previous(context)}) {
+                IconButton(onClick = { WaveifyPlayer.previous(context) }) {
                     Icon(
                         imageVector = Icons.Default.SkipPrevious,
                         contentDescription = "Previous",
-                        tint = TextPrimary,
-                        modifier = Modifier.size(36.dp)
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(32.dp)
                     )
                 }
 
                 Box(
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(66.dp)
                         .clip(CircleShape)
-                        .background(WaveifyRed),
+                        .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center
                 ) {
-                    IconButton(onClick = { WaveifyPlayer.togglePlayPause()}) {
+                    IconButton(onClick = { WaveifyPlayer.togglePlayPause() }) {
                         Icon(
-                            imageVector = if (WaveifyPlayer.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            imageVector = if (WaveifyPlayer.isPlaying) {
+                                Icons.Default.Pause
+                            } else {
+                                Icons.Default.PlayArrow
+                            },
                             contentDescription = "Play/Pause",
-                            tint = Color.White,
-                            modifier = Modifier.size(36.dp)
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(34.dp)
                         )
                     }
                 }
 
-                IconButton(
-                    onClick = { WaveifyPlayer.next(context)}
-                ) {
+                IconButton(onClick = { WaveifyPlayer.next(context) }) {
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = "Next",
-                        tint = TextPrimary,
-                        modifier = Modifier.size(36.dp)
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(32.dp)
                     )
                 }
-
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
-
-
 }

@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.beyondheavven.waveify.data.model.TrackUiModel
+import com.beyondheavven.waveify.data.remote.soundcloud.auth.SoundCloudAuthManager
+import com.beyondheavven.waveify.data.remote.spotify.auth.SpotifyAuthManager
 import com.beyondheavven.waveify.ui.screen.library.repository.LibraryRepository
 import kotlinx.coroutines.launch
 
@@ -27,6 +29,28 @@ class LibraryViewModel(
 
     var paginationError by mutableStateOf<String?>(null)
         private set
+
+    init {
+        viewModelScope.launch {
+            SpotifyAuthManager.authEvents.collect { event ->
+                if (event is SpotifyAuthManager.AuthEvent.Success) {
+                    syncLibrary()
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            SoundCloudAuthManager.authEvents.collect { event ->
+                if (
+                    event is SoundCloudAuthManager.AuthEvent.Success ||
+                    event is SoundCloudAuthManager.AuthEvent.Disconnected
+                ) {
+                    repository.clearSoundCloudCache()
+                    syncLibrary()
+                }
+            }
+        }
+    }
 
     private var spotifyTracks by mutableStateOf<List<TrackUiModel>>(emptyList())
 

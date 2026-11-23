@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.beyondheavven.waveify.data.model.HomeItemUiModel
+import com.beyondheavven.waveify.data.remote.soundcloud.auth.SoundCloudAuthManager
 import com.beyondheavven.waveify.data.remote.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.remote.spotify.auth.SpotifyAuthManager
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
@@ -52,11 +53,22 @@ class HomeViewModel: ViewModel() {
                 }
             }
         }
+
+        viewModelScope.launch {
+            SoundCloudAuthManager.authEvents.collect { event ->
+                if (
+                    event is SoundCloudAuthManager.AuthEvent.Success ||
+                    event is SoundCloudAuthManager.AuthEvent.Disconnected
+                ) {
+                    loadFeed()
+                }
+            }
+        }
     }
 
     fun loadFeed() {
         val hasSpotify = !SpotifyClient.accessToken.isNullOrEmpty()
-        val hasSoundCloud = !SoundCloudClient.connectedUsername.isNullOrEmpty()
+        val hasSoundCloud = SoundCloudClient.isAuthorized
 
         uiState = uiState.copy(
             isSpotifyConnected = hasSpotify,

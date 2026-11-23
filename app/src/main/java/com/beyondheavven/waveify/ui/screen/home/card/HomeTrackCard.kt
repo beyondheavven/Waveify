@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,8 +31,7 @@ import com.beyondheavven.waveify.data.model.HomeItemType
 import com.beyondheavven.waveify.data.model.HomeItemUiModel
 import com.beyondheavven.waveify.ui.cover.CoverSize
 import com.beyondheavven.waveify.ui.cover.WaveifyCover
-import com.beyondheavven.waveify.ui.theme.TextMuted
-import com.beyondheavven.waveify.ui.theme.TextPrimary
+import com.beyondheavven.waveify.ui.theme.WaveifyColors
 
 @Composable
 fun HomeTrackCard(
@@ -44,39 +42,31 @@ fun HomeTrackCard(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.94f else 1f,
+        targetValue = if (isPressed) 0.96f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
+            stiffness = Spring.StiffnessMedium
         ),
         label = "cardScale"
     )
+    val palette = WaveifyColors.current
 
     Column(
         modifier = modifier
-            .width(140.dp)
-            .graphicsLayer(
-                scaleX = scale,
-                scaleY = scale
-            )
-            .clip(RoundedCornerShape(12.dp))
+            .width(132.dp)
+            .graphicsLayer(scaleX = scale, scaleY = scale)
+            .clip(RoundedCornerShape(16.dp))
             .clickable(
                 interactionSource = interactionSource,
                 indication = null
-            ){
-                onClick()
-            }
+            ) { onClick() }
     ) {
-        Box(
-            modifier = Modifier
-                .size(140.dp)
-                .clip(RoundedCornerShape(14.dp))
-        ) {
+        Box(modifier = Modifier.size(132.dp)) {
             WaveifyCover(
                 coverUrl = item.coverUrl,
                 size = CoverSize.MEDIUM,
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.size(140.dp)
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.size(132.dp)
             )
 
             if (item.type != HomeItemType.TRACK) {
@@ -85,39 +75,35 @@ fun HomeTrackCard(
                         .align(Alignment.BottomStart)
                         .padding(8.dp)
                         .clip(RoundedCornerShape(6.dp))
-                        .background(Color.Black.copy(alpha = 0.65f))
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .padding(horizontal = 6.dp, vertical = 3.dp)
                 ) {
                     Text(
-                        text = item.type.name,
+                        text = item.type.name.lowercase(),
                         style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-
                 }
             }
         }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = TextPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = item.subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = TextMuted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = item.title,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = item.subtitle,
+            style = MaterialTheme.typography.bodySmall,
+            color = palette.muted,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }

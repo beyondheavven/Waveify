@@ -2,26 +2,27 @@ package com.beyondheavven.waveify.data.remote.spotify.auth
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
-import android.util.Base64
 import android.util.Log
 import com.beyondheavven.waveify.BuildConfig
+import com.beyondheavven.waveify.data.remote.oauth.AuthErrorParser
+import com.beyondheavven.waveify.data.remote.oauth.PkceUtils
 import com.beyondheavven.waveify.data.remote.spotify.client.SpotifyClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import okhttp3.FormBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONObject
 
 object SpotifyAuthManager {
 
     private const val TAG = "SpotifyAuth"
+    private const val PREFS_NAME = "spotify_auth_pending"
+    private const val KEY_STATE = "state"
+    private const val KEY_VERIFIER = "code_verifier"
+    private const val KEY_CREATED_AT = "created_at"
+    private const val AUTH_TIMEOUT_MS = 10 * 60 * 1000L
 
     var isAuthorized: Boolean = false
         private set
@@ -29,14 +30,27 @@ object SpotifyAuthManager {
     private val scope = CoroutineScope(Dispatchers.IO)
 
     sealed interface AuthEvent {
-        data object Success: AuthEvent
-        data class Error(val message: String): AuthEvent
+        data object Success : AuthEvent
+        data class Error(val message: String) : AuthEvent
     }
 
-    private val _authEvents = MutableSharedFlow<AuthEvent>()
+    private val _authEvents = MutableSharedFlow<AuthEvent>(replay = 1)
     val authEvents = _authEvents.asSharedFlow()
 
+    private fun pendingStorage(context: Context): SharedPreferences =
+        context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
     fun startLogin(context: Context) {
+        val state = PkceUtils.generateState()
+        val codeVerifier = PkceUtils.generateVerifier()
+        val codeChallenge = PkceUtils.generateChallenge(codeVerifier)
+
+        pendingStorage(context).edit()
+            .putString(KEY_STATE, state)
+            .putString(KEY_VERIFIER, codeVerifier)
+            .putLong(KEY_CREATED_AT, System.currentTimeMillis())
+            .apply()
+
         val scopes = listOf(
             "streaming",
             "user-read-email",
@@ -54,6 +68,9 @@ object SpotifyAuthManager {
             .appendQueryParameter("response_type", "code")
             .appendQueryParameter("redirect_uri", BuildConfig.SPOTIFY_REDIRECT_URI)
             .appendQueryParameter("scope", scopes)
+            .appendQueryParameter("state", state)
+            .appendQueryParameter("code_challenge", codeChallenge)
+            .appendQueryParameter("code_challenge_method", "S256")
             .appendQueryParameter("show_dialog", "true")
             .build()
 
@@ -63,21 +80,65 @@ object SpotifyAuthManager {
         context.startActivity(intent)
     }
 
-    fun exchangeCodeForToken(code: String, onComplete: () -> Unit) {
+    fun handleCallback(
+        context: Context,
+        code: String?,
+        state: String?,
+        error: String?,
+        errorDescription: String?,
+        onComplete: () -> Unit
+    ) {
+        if (error != null) {
+            notifyError(errorDescription ?: error)
+            onComplete()
+            return
+        }
+
+        if (code == null || state == null) {
+            notifyError("Invalid authorization response")
+            onComplete()
+            return
+        }
+
+        val storage = pendingStorage(context)
+        val expectedState = storage.getString(KEY_STATE, null)
+        val codeVerifier = storage.getString(KEY_VERIFIER, null)
+        val createdAt = storage.getLong(KEY_CREATED_AT, 0L)
+
+        if (expectedState == null || codeVerifier == null) {
+            notifyError("Authorization request not found")
+            onComplete()
+            return
+        }
+
+        if (state != expectedState) {
+            notifyError("Invalid authorization state")
+            onComplete()
+            return
+        }
+
+        if (System.currentTimeMillis() - createdAt > AUTH_TIMEOUT_MS) {
+            storage.edit().clear().apply()
+            notifyError("Authorization request expired")
+            onComplete()
+            return
+        }
+
+        storage.edit().clear().apply()
+        exchangeCodeForToken(code, codeVerifier, onComplete)
+    }
+
+    private fun exchangeCodeForToken(code: String, codeVerifier: String, onComplete: () -> Unit) {
         scope.launch {
             try {
-                val success = SpotifyClient.exchangeCodeForToken(code)
-                if (success) {
-                    Log.d(TAG, "Authorization is successful! Access token obtained")
-                    isAuthorized = true
-                    _authEvents.emit(AuthEvent.Success)
-                } else {
-                    Log.e(TAG, "Failed to exchange code for token.")
-                    _authEvents.emit(AuthEvent.Error("Failed to obtain token"))
-                }
+                SpotifyClient.exchangeCodeForToken(code, codeVerifier)
+                Log.d(TAG, "Authorization is successful! Access token obtained")
+                isAuthorized = true
+                _authEvents.emit(AuthEvent.Success)
             } catch (e: Exception) {
-                Log.e(TAG, "Error occurred $e")
-                _authEvents.emit(AuthEvent.Error(e.message ?: "Authentication error"))
+                val message = AuthErrorParser.message(e)
+                Log.e(TAG, "Failed to exchange code for token: $message")
+                _authEvents.emit(AuthEvent.Error(message))
             } finally {
                 onComplete()
             }

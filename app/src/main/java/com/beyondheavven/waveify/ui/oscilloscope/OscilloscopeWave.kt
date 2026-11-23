@@ -1,6 +1,5 @@
 package com.beyondheavven.waveify.ui.oscilloscope
 
-import android.icu.number.IntegerWidth
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -11,6 +10,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -23,14 +23,13 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.beyondheavven.waveify.ui.theme.WaveifyRed
 import kotlin.math.sin
 
 @Composable
 fun OscilloscopeWave(
     isPlaying: Boolean,
-    modifier: Modifier = Modifier,
-    waveColor: Color = WaveifyRed,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    waveColor: Color = MaterialTheme.colorScheme.primary,
     strokeWidth: Dp = 1.5.dp,
     maxAmplitude: Float = 6f
 ) {
@@ -56,9 +55,7 @@ fun OscilloscopeWave(
     )
 
     Canvas(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(18.dp)
+        modifier = modifier.height(18.dp)
     ) {
         val width = size.width
         val centerY = size.height / 2f

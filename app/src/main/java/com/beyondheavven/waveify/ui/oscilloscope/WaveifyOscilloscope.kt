@@ -12,6 +12,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +30,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.beyondheavven.waveify.data.model.TrackSource
-import com.beyondheavven.waveify.ui.theme.WaveifyRed
+import com.beyondheavven.waveify.ui.theme.WaveifyColors
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -39,9 +40,9 @@ fun WaveifyOscilloscope(
     isPlaying: Boolean,
     realWaveData: ByteArray?,
     modifier: Modifier = Modifier,
-    beamColor: Color = WaveifyRed,
-    gridColor: Color = Color(0xFF16222F),
-    backgroundColor: Color = Color(0xFF0A0F14)
+    beamColor: Color = MaterialTheme.colorScheme.primary,
+    gridColor: Color = WaveifyColors.current.waveGrid,
+    backgroundColor: Color = WaveifyColors.current.waveBackground
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "synthTransition")
     val phase by infiniteTransition.animateFloat(
