@@ -19,7 +19,7 @@
 - 🔀 **Два стриминговых сервиса в одном плеере**:
   - Каталог и рекомендации из **Spotify** (через Spotify Web API и App Remote SDK).
   - Поиск, тренды и чарты из **SoundCloud** (через SoundCloud API v2).
-  - Подключение аккаунтов через OAuth: Spotify — PKCE напрямую, SoundCloud — PKCE через модуль `:server`, где хранится `client_secret`.
+  - Подключение аккаунтов: Spotify — OAuth 2.0 Authorization Code + PKCE напрямую, SoundCloud — по нику с публичным client ID из soundcloud.com (без секретов и сервера).
 - 📟 **ASCII Art Cover Engine**:
   - Конвертирует любые обложки альбомов в цветной или монохромный ASCII-арт.
   - 4 цветовых профиля: **Full Color**, **Waveify Neon Red**, **Matrix CRT Green** и **Monochrome**.
@@ -57,30 +57,29 @@
 
 ```text
 com.beyondheavven.waveify/
+├── core/
+│   ├── model/               # Общие модели треков (TrackUiModel, HomeItemUiModel) и мапперы
+│   ├── network/oauth/       # PKCE и разбор ошибок OAuth (используется Spotify)
+│   ├── storage/             # Настройки ASCII-обложек в SharedPreferences
+│   └── ui/
+│       ├── component/       # Общие карточки треков
+│       ├── cover/           # ASCII Art Engine (AsciiTransformation, WaveifyCover)
+│       ├── notification/    # Внутриигровой баннер уведомлений
+│       └── oscilloscope/    # WaveifyOscilloscope & OscilloscopeWave (Canvas визуализатор)
 ├── data/
-│   ├── model/               # Модели треков (TrackUiModel, HomeItemUiModel) и мапперы
-│   └── remote/
-│       ├── soundcloud/      # Retrofit-сервис, модели и клиент SoundCloud
-│       └── spotify/         # OAuth2 Authorization Code + PKCE (Deep Link), модели Spotify Web API
-├── player/
-│   ├── soundcloud/          # SoundCloudPlayerManager (ExoPlayer + AudioWaveformTracker)
-│   ├── spotify/             # SpotifyPlayerManager (SpotifyAppRemote)
-│   ├── visualizer/          # AudioWaveformTracker (Android Visualizer API)
-│   └── waveify/             # WaveifyPlayer — глобальный оркестратор воспроизведения
-├── ui/
-│   ├── cover/               # ASCII Art Engine (AsciiTransformation, AsciiSettings, WaveifyCover)
-│   ├── oscilloscope/        # WaveifyOscilloscope & OscilloscopeWave (Canvas визуализатор)
-│   ├── player/              # MiniPlayer & PlayerModal
-│   ├── screen/
-│   │   ├── home/            # Главный экран (подборки, чарты, карусели треков)
-│   │   ├── library/         # Медиатека с фильтрацией (Spotify / SoundCloud / All) и поиском
-│   │   ├── profile/         # Профиль: авторизация в Spotify/SoundCloud, выбор ASCII-палитры
-│   │   └── notification/    # Внутриигровой баннер уведомлений
-│   ├── navigation/          # Кастомный нижний NavigationBar
-│   └── theme/               # Цвета (Cyberpunk Dark), типографика (Poppins), тема Waveify
-├── MainActivity.kt          # Корневая Activity (Edge-to-Edge, Scaffold)
-└── server/                   # JDK HttpServer backend для SoundCloud OAuth
-    └── Main.kt               # /token, /refresh, /disconnect; секрет только в env
+│   ├── repository/          # HomeRepository, LibraryRepository, LibraryFilter
+│   ├── soundcloud/          # Клиент, сервисы, модели и подключение по нику
+│   └── spotify/             # OAuth2 Authorization Code + PKCE, Web API и модели
+├── feature/
+│   ├── home/                # Главный экран (подборки, чарты, карусели треков)
+│   ├── library/             # Медиатека с фильтрацией (Spotify / SoundCloud / All) и поиском
+│   ├── player/              # MiniPlayer, PlayerModal, менеджеры и визуализатор
+│   ├── profile/             # Профиль: подключение Spotify/SoundCloud, выбор ASCII-палитры
+│   ├── search/              # Поиск по каталогу
+│   └── settings/            # Настройки темы и внешнего вида
+├── navigation/              # Кастомный нижний NavigationBar
+├── theme/                   # Цвета, типографика (Poppins), тема Waveify
+└── MainActivity.kt          # Корневая Activity (Edge-to-Edge, Scaffold)
 ```
 
 ---
@@ -112,35 +111,16 @@ cp local.properties.example local.properties
 sdk.dir=C\:\\Users\\<username>\\AppData\\Local\\Android\\Sdk
 ```
 
-Публичные значения — Spotify client ID, redirect URI, base URLs и SoundCloud client ID — заданы дефолтами в `app/build.gradle.kts`. При необходимости их можно переопределить переменными окружения: `SPOTIFY_CLIENT_ID`, `SPOTIFY_REDIRECT_URI`, `SPOTIFY_BASE_URL`, `ACCOUNTS_BASE_URL`, `SOUNDCLOUD_CLIENT_ID`, `SOUNDCLOUD_BASE_URL`, `SOUNDCLOUD_AUTHORIZE_URL`, `SOUNDCLOUD_REDIRECT_URI`, `SOUNDCLOUD_AUTH_BASE_URL`.
+Публичные значения — Spotify client ID, redirect URI, base URLs и SoundCloud client ID — заданы дефолтами в `app/build.gradle.kts`. При необходимости их можно переопределить переменными окружения: `SPOTIFY_CLIENT_ID`, `SPOTIFY_REDIRECT_URI`, `SPOTIFY_BASE_URL`, `ACCOUNTS_BASE_URL`, `SOUNDCLOUD_CLIENT_ID`, `SOUNDCLOUD_BASE_URL`.
 
 Redirect URI:
 - Spotify: `waveify://callback` — зарегистрирован в Spotify Dashboard.
-- SoundCloud: `waveify://soundcloud/callback` — наш собственный custom scheme по образцу `my-app://soundcloud/callback` из доков SoundCloud; его нужно зарегистрировать в Your Apps.
 
-Секретов в APK нет. Spotify использует OAuth 2.0 Authorization Code + PKCE напрямую. SoundCloud использует PKCE, но обмен кода требует `client_secret`, поэтому он идёт через модуль `:server`. Для SoundCloud `SOUNDCLOUD_CLIENT_ID` должен быть одинаковым в приложении и на сервере; дефолтный публичный client ID soundcloud.com для OAuth не подходит.
+Секретов в APK нет. Spotify использует OAuth 2.0 Authorization Code + PKCE напрямую. SoundCloud подключается по нику: приложение получает публичный client ID из разметки soundcloud.com и запрашивает профиль через API v2. Секрет, регистрируемое приложение и отдельный сервер SoundCloud не нужны. `SOUNDCLOUD_CLIENT_ID` задаёт резервное публичное значение из soundcloud.com, `SOUNDCLOUD_BASE_URL` — адрес API.
 
-### 4. Backend для SoundCloud OAuth
+### 4. Подключение SoundCloud
 
-Запустите минимальный сервер с секретом только в окружении:
-
-```bash
-export SOUNDCLOUD_CLIENT_ID=<your_client_id>
-export SOUNDCLOUD_CLIENT_SECRET=<your_client_secret>
-export SOUNDCLOUD_REDIRECT_URI=waveify://soundcloud/callback
-./gradlew :server:run
-```
-
-Для Windows (PowerShell):
-
-```powershell
-$env:SOUNDCLOUD_CLIENT_ID="<your_client_id>"
-$env:SOUNDCLOUD_CLIENT_SECRET="<your_client_secret>"
-$env:SOUNDCLOUD_REDIRECT_URI="waveify://soundcloud/callback"
-.\gradlew.bat :server:run
-```
-
-Сервер слушает `8080` (переопределяется через `PORT`) и предоставляет `POST /api/auth/soundcloud/token`, `POST /api/auth/soundcloud/refresh`, `POST /api/auth/soundcloud/disconnect` и `GET /health`. По умолчанию приложение обращается к `http://10.0.2.2:8080/` (эмулятор Android; cleartext разрешён только в debug-манифесте). Для реального устройства или продакшена задайте `SOUNDCLOUD_AUTH_BASE_URL` с доступным HTTPS-адресом и не публикуйте `SOUNDCLOUD_CLIENT_SECRET` в клиенте.
+На экране профиля введите ник или ссылку вида `https://soundcloud.com/<nickname>`. Приложение получит публичный client ID с soundcloud.com, найдёт профиль и сохранит сессию локально. Повторное подключение не требуется до выхода из аккаунта; для отключения используйте кнопку выхода в профиле.
 
 ### 5. Сборка проекта
 В терминале:
@@ -155,7 +135,7 @@ $env:SOUNDCLOUD_REDIRECT_URI="waveify://soundcloud/callback"
 
 Полная проверка перед коммитом:
 ```bash
-./gradlew assembleDebug testDebugUnitTest lintDebug :server:test
+./gradlew assembleDebug testDebugUnitTest lintDebug
 ```
 
 ---

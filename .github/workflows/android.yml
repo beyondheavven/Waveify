@@ -33,7 +33,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build, test and lint
-        run: ./gradlew assembleDebug testDebugUnitTest lintDebug :server:test --no-daemon --stacktrace
+        run: ./gradlew assembleDebug testDebugUnitTest lintDebug --no-daemon --stacktrace
 
       - name: Upload reports
         if: always()
@@ -43,6 +43,4 @@ jobs:
           path: |
             app/build/reports
             app/build/test-results
-            server/build/reports
-            server/build/test-results
           if-no-files-found: ignore
