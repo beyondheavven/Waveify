@@ -1,5 +1,4 @@
-package com.beyondheavven.waveify
-
+﻿package com.beyondheavven.waveify
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,21 +13,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.beyondheavven.waveify.data.remote.soundcloud.auth.SoundCloudAuthManager
-import com.beyondheavven.waveify.player.spotify.SpotifyPlayerManager
-import com.beyondheavven.waveify.player.visualizer.AudioPermissionManager
-import com.beyondheavven.waveify.ui.cover.AsciiSettings
-import com.beyondheavven.waveify.ui.navigation.NavigationBar
-import com.beyondheavven.waveify.ui.navigation.NavigationItem
-import com.beyondheavven.waveify.ui.player.MiniPlayer
-import com.beyondheavven.waveify.ui.player.PlayerModal
-import com.beyondheavven.waveify.ui.screen.home.HomeScreen
-import com.beyondheavven.waveify.ui.screen.library.LibraryScreen
-import com.beyondheavven.waveify.ui.screen.profile.ProfileScreen
-import com.beyondheavven.waveify.ui.screen.search.SearchScreen
-import com.beyondheavven.waveify.ui.screen.settings.SettingsScreen
-import com.beyondheavven.waveify.ui.theme.AppearanceSettings
-import com.beyondheavven.waveify.ui.theme.WaveifyTheme
+import com.beyondheavven.waveify.data.soundcloud.auth.SoundCloudAuthManager
+import com.beyondheavven.waveify.feature.player.spotify.SpotifyPlayerManager
+import com.beyondheavven.waveify.feature.player.visualizer.AudioPermissionManager
+import com.beyondheavven.waveify.core.storage.AsciiSettings
+import com.beyondheavven.waveify.navigation.NavigationBar
+import com.beyondheavven.waveify.navigation.NavigationItem
+import com.beyondheavven.waveify.feature.player.MiniPlayer
+import com.beyondheavven.waveify.feature.player.PlayerModal
+import com.beyondheavven.waveify.feature.home.HomeScreen
+import com.beyondheavven.waveify.feature.library.LibraryScreen
+import com.beyondheavven.waveify.feature.profile.ProfileScreen
+import com.beyondheavven.waveify.feature.search.SearchScreen
+import com.beyondheavven.waveify.feature.settings.SettingsScreen
+import com.beyondheavven.waveify.theme.AppearanceSettings
+import com.beyondheavven.waveify.theme.WaveifyTheme
 
 class MainActivity : ComponentActivity() {
 

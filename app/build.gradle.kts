@@ -17,8 +17,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders["redirectSchemeName"] = "waveify"
-        manifestPlaceholders["redirectHostName"] = "callback"
 
         val spotifyClientId = System.getenv("SPOTIFY_CLIENT_ID")?.takeIf { it.isNotBlank() }
             ?: "958af1c2daa4465a94e6926323e27d6a"
@@ -30,12 +28,6 @@ android {
             ?: "https://api-v2.soundcloud.com/"
         val soundcloudClientId = System.getenv("SOUNDCLOUD_CLIENT_ID")?.takeIf { it.isNotBlank() }
             ?: "QhVEWrrJKvW4uSU5u5EoI0FTXYUGzy5k"
-        val soundcloudAuthorizeUrl = System.getenv("SOUNDCLOUD_AUTHORIZE_URL")?.takeIf { it.isNotBlank() }
-            ?: "https://secure.soundcloud.com/authorize"
-        val soundcloudRedirectUri = System.getenv("SOUNDCLOUD_REDIRECT_URI")?.takeIf { it.isNotBlank() }
-            ?: "waveify://soundcloud/callback"
-        val soundcloudAuthBaseUrl = System.getenv("SOUNDCLOUD_AUTH_BASE_URL")?.takeIf { it.isNotBlank() }
-            ?: "http://10.0.2.2:8080/"
         val accountsBaseUrl = System.getenv("ACCOUNTS_BASE_URL")?.takeIf { it.isNotBlank() }
             ?: "https://accounts.spotify.com/"
 
@@ -45,9 +37,6 @@ android {
         buildConfigField("String", "SPOTIFY_BASE_URL", "\"$spotifyBaseUrl\"")
         buildConfigField("String", "SOUNDCLOUD_BASE_URL", "\"$soundcloudBaseUrl\"")
         buildConfigField("String", "SOUNDCLOUD_CLIENT_ID", "\"$soundcloudClientId\"")
-        buildConfigField("String", "SOUNDCLOUD_AUTHORIZE_URL", "\"$soundcloudAuthorizeUrl\"")
-        buildConfigField("String", "SOUNDCLOUD_REDIRECT_URI", "\"$soundcloudRedirectUri\"")
-        buildConfigField("String", "SOUNDCLOUD_AUTH_BASE_URL", "\"$soundcloudAuthBaseUrl\"")
         buildConfigField("String", "ACCOUNTS_BASE_URL", "\"$accountsBaseUrl\"")
     }
 
