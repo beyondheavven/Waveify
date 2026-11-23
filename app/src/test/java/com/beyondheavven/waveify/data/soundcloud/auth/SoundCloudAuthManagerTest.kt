@@ -18,10 +18,27 @@ class SoundCloudAuthManagerTest {
     }
 
     @Test
+    fun `extract client id when another id appears first in hydration`() {
+        val html = """
+            <script>
+            window.__sc_hydration = [{"hydratable":"trackingBrowserTabId","data":{"id":"Unrelated1234567890"}},{"hydratable":"apiClient","data":{"id":"TargetClient1234567890","isExpiring":true}}];</script>
+        """.trimIndent()
+
+        assertEquals("TargetClient1234567890", SoundCloudAuthManager.extractClientId(html))
+    }
+
+    @Test
     fun `extract client id from quoted object notation`() {
         val html = """apiClient = { id: 'Short1234567890AbCd' };"""
 
         assertEquals("Short1234567890AbCd", SoundCloudAuthManager.extractClientId(html))
+    }
+
+    @Test
+    fun `return null when mobile page has no hydration`() {
+        val html = """<html><script>window.__sc_version="1795431512"</script><body>Mobile</body></html>"""
+
+        assertNull(SoundCloudAuthManager.extractClientId(html))
     }
 
     @Test

@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.beyondheavven.waveify.data.soundcloud.client.SoundCloudClient
 import com.beyondheavven.waveify.data.soundcloud.models.SoundCloudProfileModel
+import com.google.gson.JsonParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,8 +18,8 @@ import java.util.concurrent.TimeUnit
 object SoundCloudAuthManager {
 
     private const val TAG = "SoundCloudAuth"
-    private const val USER_AGENT = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 " +
-        "(KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36"
+    private const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -28,6 +29,10 @@ object SoundCloudAuthManager {
         .build()
 
     private val nicknamePattern = Regex("^[A-Za-z0-9_-]{1,80}$")
+    private val hydrationRegex = Regex(
+        "window\\.__sc_hydration\\s*=\\s*(\\[.*?\\]);?\\s*</script>",
+        RegexOption.DOT_MATCHES_ALL
+    )
     private val idPatterns = listOf(
         Regex(""""id"\s*:\s*"([A-Za-z0-9]{16,80})""""),
         Regex("""\bid\s*:\s*'([A-Za-z0-9]{16,80})'"""),
@@ -83,6 +88,22 @@ object SoundCloudAuthManager {
     }
 
     internal fun extractClientId(html: String): String? {
+        hydrationRegex.find(html)?.groupValues?.getOrNull(1)?.let { json ->
+            try {
+                val hydration = JsonParser.parseString(json).asJsonArray
+                for (element in hydration) {
+                    if (!element.isJsonObject) continue
+                    val entry = element.asJsonObject
+                    if (entry.get("hydratable")?.asString != "apiClient") continue
+                    val idElement = entry.getAsJsonObject("data")?.get("id") ?: continue
+                    if (!idElement.isJsonPrimitive) continue
+                    val value = idElement.asString
+                    if (value.length in 16..80) return value
+                }
+            } catch (_: Exception) {
+            }
+        }
+
         val markerIndex = html.indexOf("apiClient")
         val area = if (markerIndex >= 0) {
             html.substring(markerIndex, kotlin.math.min(markerIndex + 3000, html.length))
@@ -90,8 +111,10 @@ object SoundCloudAuthManager {
             html
         }
         for (pattern in idPatterns) {
-            val match = pattern.find(area)
-            if (match != null) return match.groupValues[1]
+            val match = pattern.find(area) ?: continue
+            val candidate = match.groupValues[1]
+            if (candidate.startsWith("SC|", ignoreCase = true)) continue
+            return candidate
         }
         return null
     }
